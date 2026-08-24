@@ -3,7 +3,7 @@ import { posts } from "@/lib/content";
 import { getStore } from "@/lib/db";
 import { siteUrl } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();

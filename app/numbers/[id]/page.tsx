@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getNumber } from "@/lib/catalog";
+import { catalog, getNumber } from "@/lib/catalog";
 import { findNumber, getStore, similarFrom } from "@/lib/db";
 import { getNumerology, destinyMeanings } from "@/lib/numerology";
 import { inr } from "@/lib/site";
@@ -8,7 +8,9 @@ import { siteUrl } from "@/lib/seo";
 import { NumberGrid } from "@/components/number-card";
 import { BuyBox } from "./buy-box";
 
-export const dynamic = "force-dynamic";
+export function generateStaticParams() {
+  return catalog.filter((item) => item.status !== "hidden").map((item) => ({ id: item.id }));
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

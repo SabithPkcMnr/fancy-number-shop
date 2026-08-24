@@ -36,7 +36,7 @@ export function Hero() {
       <div className={`relative overflow-hidden bg-gradient-to-br ${slide.gradient}`}>
         {slide.image ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={slide.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
+          <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}${slide.image}`} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
         ) : null}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_42%)]" />
         <div className="absolute -right-10 top-10 hidden lg:block text-white/10 font-extrabold text-[140px] leading-none select-none pointer-events-none">

@@ -90,7 +90,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/public")
+    fetch(`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/api/public`)
       .then((res) => (res.ok ? res.json() : fallbackPublic))
       .then((data: PublicPayload) => {
         if (!cancelled) setPublicData(data);
