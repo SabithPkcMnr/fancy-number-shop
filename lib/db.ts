@@ -1,0 +1,254 @@
+import { promises as fs } from "fs";
+import path from "path";
+import { catalog } from "./catalog";
+import { defaultSettings, fallbackNav } from "./site";
+import type {
+  AppData,
+  Inquiry,
+  MenuItem,
+  Order,
+  PublicPayload,
+  RegisteredUser,
+  Slide,
+  VipNumber,
+} from "./types";
+import { publicSettings } from "./site";
+
+const dataDir = path.join(process.cwd(), "data");
+const storePath = path.join(dataDir, "store.json");
+
+const defaultSlides: Slide[] = [
+  {
+    id: "slide-1",
+    kicker: "India's favourite VIP catalogue",
+    title: "Find a number people never forget.",
+    text: "Mirrors, 786, repeating digits, and family packs — ready to port to Jio, Airtel, Vi or BSNL.",
+    ctaLabel: "Browse VIP numbers",
+    ctaHref: "/numbers",
+    image: "",
+    gradient: "from-teal-900 via-cyan-800 to-sky-700",
+    active: true,
+  },
+  {
+    id: "slide-2",
+    kicker: "Pay your way",
+    title: "Razorpay checkout or WhatsApp in one tap.",
+    text: "Buy instantly with cards and UPI, or chat with our desk about a specific number.",
+    ctaLabel: "See offers",
+    ctaHref: "/offers",
+    image: "",
+    gradient: "from-indigo-900 via-violet-800 to-fuchsia-700",
+    active: true,
+  },
+  {
+    id: "slide-3",
+    kicker: "UPC in 60 minutes",
+    title: "Your number. Your name. Any network.",
+    text: "Secure UPC on every order. Porting support until the SIM lights up.",
+    ctaLabel: "How it works",
+    ctaHref: "/how-it-works",
+    image: "",
+    gradient: "from-slate-900 via-teal-800 to-emerald-700",
+    active: true,
+  },
+];
+
+function defaultMenus(): MenuItem[] {
+  return fallbackNav.map((item, index) => ({
+    id: `header-${index}`,
+    href: item.href,
+    label: item.label,
+    placement: "header",
+    order: index,
+    visible: true,
+  }));
+}
+
+function seedUsers(): RegisteredUser[] {
+  return [
+    {
+      id: "usr_1001",
+      name: "Rahul Sharma",
+      phone: "9876501234",
+      email: "rahul.sharma@gmail.com",
+      createdAt: "2026-06-12T10:20:00.000Z",
+    },
+    {
+      id: "usr_1002",
+      name: "Priya Nair",
+      phone: "9822011122",
+      email: "priya.nair@outlook.com",
+      createdAt: "2026-07-03T14:05:00.000Z",
+    },
+    {
+      id: "usr_1003",
+      name: "Amit Patel",
+      phone: "9765412345",
+      email: "amit.patel@yahoo.com",
+      createdAt: "2026-08-01T09:40:00.000Z",
+    },
+  ];
+}
+
+function seedOrders(): Order[] {
+  const first = catalog[10];
+  const second = catalog[12];
+  return [
+    {
+      id: "FNS10021",
+      items: [{ id: first.id, digits: first.digits, pattern: first.pattern, price: first.price }],
+      total: first.price,
+      customer: {
+        name: "Rahul Sharma",
+        phone: "9876501234",
+        email: "rahul.sharma@gmail.com",
+        city: "Pune",
+      },
+      payment: "razorpay",
+      paymentId: "pay_demo_21",
+      status: "completed",
+      upc: "482913",
+      createdAt: "2026-08-08T11:15:00.000Z",
+    },
+    {
+      id: "FNS10022",
+      items: [{ id: second.id, digits: second.digits, pattern: second.pattern, price: second.price }],
+      total: second.price,
+      customer: {
+        name: "Priya Nair",
+        phone: "9822011122",
+        email: "priya.nair@outlook.com",
+        city: "Kochi",
+      },
+      payment: "whatsapp",
+      status: "processing",
+      createdAt: "2026-08-18T16:42:00.000Z",
+    },
+  ];
+}
+
+function seedInquiries(): Inquiry[] {
+  return [
+    {
+      id: "inq_1001",
+      kind: "choice",
+      name: "Vikram Joshi",
+      phone: "9988776655",
+      message: "Looking for a 786 ending number under ₹25,000",
+      status: "new",
+      createdAt: "2026-08-20T08:12:00.000Z",
+    },
+  ];
+}
+
+function seedData(): AppData {
+  return {
+    settings: defaultSettings,
+    numbers: catalog,
+    slides: defaultSlides,
+    menus: defaultMenus(),
+    users: seedUsers(),
+    orders: seedOrders(),
+    inquiries: seedInquiries(),
+  };
+}
+
+let memory: AppData | null = null;
+let writeQueue = Promise.resolve();
+
+function withLock<T>(fn: () => Promise<T>) {
+  const run = writeQueue.then(fn, fn);
+  writeQueue = run.then(
+    () => undefined,
+    () => undefined,
+  );
+  return run;
+}
+
+async function ensureDir() {
+  await fs.mkdir(dataDir, { recursive: true });
+}
+
+function mergeStore(raw: Partial<AppData>): AppData {
+  const seed = seedData();
+  return {
+    settings: { ...seed.settings, ...raw.settings, trustLine: raw.settings?.trustLine || seed.settings.trustLine },
+    numbers: raw.numbers?.length ? raw.numbers : seed.numbers,
+    slides: raw.slides?.length ? raw.slides : seed.slides,
+    menus: raw.menus?.length ? raw.menus : seed.menus,
+    users: raw.users ?? seed.users,
+    orders: raw.orders ?? seed.orders,
+    inquiries: raw.inquiries ?? seed.inquiries,
+  };
+}
+
+export async function getStore(): Promise<AppData> {
+  if (memory) return memory;
+  try {
+    const raw = await fs.readFile(storePath, "utf8");
+    memory = mergeStore(JSON.parse(raw) as Partial<AppData>);
+    return memory;
+  } catch {
+    memory = seedData();
+    await persist(memory);
+    return memory;
+  }
+}
+
+async function persist(next: AppData) {
+  memory = next;
+  await ensureDir();
+  await fs.writeFile(storePath, JSON.stringify(next, null, 2), "utf8");
+}
+
+export async function updateStore(patch: Partial<AppData>) {
+  return withLock(async () => {
+    const current = await getStore();
+    const next = { ...current, ...patch };
+    await persist(next);
+    return next;
+  });
+}
+
+export async function getPublicPayload(): Promise<PublicPayload> {
+  const store = await getStore();
+  return {
+    settings: publicSettings(store.settings),
+    numbers: store.numbers.filter((item) => item.status === "live"),
+    slides: store.slides.filter((slide) => slide.active),
+    menus: store.menus.filter((item) => item.visible).sort((a, b) => a.order - b.order),
+  };
+}
+
+export async function findNumber(id: string) {
+  const store = await getStore();
+  return store.numbers.find((item) => item.id === id);
+}
+
+export async function liveNumber(id: string) {
+  const item = await findNumber(id);
+  return item?.status === "live" ? item : undefined;
+}
+
+export function similarFrom(list: VipNumber[], item: VipNumber, limit = 8) {
+  return list
+    .filter((other) => other.id !== item.id && other.status === "live")
+    .map((other) => {
+      let score = 0;
+      if (other.familyGroup && other.familyGroup === item.familyGroup) score += 8;
+      if (other.category === item.category) score += 3;
+      if (other.categories.some((cat) => item.categories.includes(cat))) score += 1;
+      return { other, score };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((entry) => entry.other);
+}
+
+export function nextId(prefix: string) {
+  return `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+}
+
+export function nextOrderId() {
+  return `FNS${Math.floor(10000 + Math.random() * 90000)}`;
+}

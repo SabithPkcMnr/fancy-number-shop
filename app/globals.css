@@ -1,0 +1,176 @@
+@import "tailwindcss";
+
+:root {
+  --ivory: #f3f7fb;
+  --blush: #d9f4ef;
+  --paper: #ffffff;
+  --ink: #0f172a;
+  --muted: #5b6478;
+  --line: #dde5ef;
+  --azure: #0f766e;
+  --azure-dark: #0b5c56;
+  --sky: #ccfbf1;
+  --gold: #f59e0b;
+  --danger: #dc2626;
+  --navy: #082f3b;
+}
+
+@theme inline {
+  --color-ivory: var(--ivory);
+  --color-blush: var(--blush);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-azure: var(--azure);
+  --color-azure-dark: var(--azure-dark);
+  --color-sky: var(--sky);
+  --color-gold: var(--gold);
+  --color-danger: var(--danger);
+  --color-navy: var(--navy);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+}
+
+* {
+  border-color: var(--line);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--ivory);
+  color: var(--ink);
+  font-family: var(--font-sans), "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display), var(--font-sans), "Plus Jakarta Sans", system-ui, sans-serif;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+
+::selection {
+  background: var(--sky);
+  color: var(--ink);
+}
+
+.number-digits {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+.vip-card {
+  container-type: inline-size;
+}
+
+.vip-number {
+  white-space: nowrap;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  font-size: 0.9rem;
+}
+
+@container (min-width: 200px) {
+  .vip-number {
+    font-size: 1.05rem;
+  }
+}
+
+@container (min-width: 260px) {
+  .vip-number {
+    font-size: 1.35rem;
+  }
+}
+
+@container (min-width: 320px) {
+  .vip-number {
+    font-size: 1.625rem;
+  }
+}
+
+.ticker {
+  animation: ticker 28s linear infinite;
+}
+
+@keyframes ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.hero-fade {
+  animation: fadeSlide 0.7s ease;
+}
+
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+input,
+select,
+textarea {
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--azure);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.75rem;
+  padding: 0 1.5rem;
+  border-radius: 0.85rem;
+  background: var(--azure);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--azure-dark);
+}
+
+.btn-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.75rem;
+  padding: 0 1.5rem;
+  border-radius: 0.85rem;
+  background: #16a34a;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.card-surface {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
