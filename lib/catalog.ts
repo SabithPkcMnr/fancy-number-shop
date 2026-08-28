@@ -1,5 +1,6 @@
+import { autoHighlights } from "./highlights";
 import { getNumerology } from "./numerology";
-import type { CategorySlug, CheckoutMode, NumberStatus, VipNumber } from "./types";
+import type { CategorySlug, CheckoutMode, DigitHighlight, NumberStatus, VipNumber } from "./types";
 
 export type { CategorySlug, CheckoutMode, NumberStatus, VipNumber };
 
@@ -37,24 +38,28 @@ type Flag = {
   extra?: CategorySlug[];
   checkout?: CheckoutMode;
   status?: NumberStatus;
+  highlights?: DigitHighlight[];
+  accent?: string[];
+  plain?: boolean;
 };
 
 type Seed = [string, string, number, number, CategorySlug, Flag?];
 
 const seeds: Seed[] = [
   ["9888888888", "98 8888 8888", 1250000, 10, "vvip", { featured: true, extra: ["hexa"] }],
-  ["9623232323", "96 23 23 23 23", 585000, 10, "xy-xy-xy", { featured: true, extra: ["vvip"] }],
-  ["9822222225", "98 2222222 5", 455000, 10, "vvip", { featured: true, extra: ["hexa"] }],
-  ["9999990001", "99 9999 0001", 980000, 10, "hexa", { featured: true, extra: ["vvip"] }],
-  ["7777777008", "777777 7008", 720000, 12, "hexa", { featured: true, extra: ["vvip"] }],
-  ["9090909091", "90 90 90 90 91", 390000, 10, "two-digit", { featured: true, extra: ["vvip"] }],
-  ["8888888123", "888888 8123", 650000, 10, "hexa", { featured: true }],
-  ["7867867860", "786 786 786 0", 185000, 10, "lucky-786", { featured: true, extra: ["abc-abc"] }],
-  ["9812343219", "98 1234 3219", 89000, 10, "mirror", { featured: true }],
-  ["7377937777", "737793 7777", 33999, 10, "penta", { featured: true, extra: ["tetra"] }],
-  ["9067100101", "9067 100 101", 16319, 20, "doubling", { offer: true, featured: true }],
-  ["9371505505", "9371 505 505", 16319, 20, "doubling", { offer: true, featured: true }],
-  ["9765501313", "97655 01313", 7019, 25, "penta", { offer: true, featured: true }],
+  ["9008888800", "9 00 88888 00", 275000, 10, "penta", { featured: true, extra: ["tetra"] }],
+  ["9623232323", "96 23 23 23 23", 585000, 10, "xy-xy-xy", { featured: true, extra: ["vvip"], accent: ["23232323"] }],
+  ["9822222225", "98 2222222 5", 455000, 10, "vvip", { featured: true, extra: ["hexa"], accent: ["2222222"] }],
+  ["9999990001", "99 9999 0001", 980000, 10, "hexa", { featured: true, extra: ["vvip"], accent: ["9999"] }],
+  ["7777777008", "777777 7008", 720000, 12, "hexa", { featured: true, extra: ["vvip"], accent: ["777777"] }],
+  ["9090909091", "90 90 90 90 91", 390000, 10, "two-digit", { featured: true, extra: ["vvip"], accent: ["90909090"] }],
+  ["8888888123", "888888 8123", 650000, 10, "hexa", { featured: true, accent: ["888888"] }],
+  ["7867867860", "786 786 786 0", 185000, 10, "lucky-786", { featured: true, extra: ["abc-abc"], accent: ["786"] }],
+  ["9812343219", "98 1234 3219", 89000, 10, "mirror", { featured: true, accent: ["1234321"] }],
+  ["7377937777", "737793 7777", 33999, 10, "penta", { featured: true, extra: ["tetra"], accent: ["7777"] }],
+  ["9067100101", "9067 100 101", 16319, 20, "doubling", { offer: true, featured: true, accent: ["100101"] }],
+  ["9371505505", "9371 505 505", 16319, 20, "doubling", { offer: true, featured: true, accent: ["505505"] }],
+  ["9765501313", "97655 01313", 7019, 25, "penta", { offer: true, featured: true, accent: ["01313"] }],
   ["9888945935", "98 88 94 59 35", 1600, 10, "unique", { offer: true, featured: true }],
   ["9955053595", "9955 053595", 4378, 10, "without-248", { featured: true }],
   ["9709707187", "970 970 7187", 3200, 10, "abc-abc", { featured: true }],
@@ -219,12 +224,14 @@ function toItem(seed: Seed): VipNumber | null {
     familyGroup: flags?.familyGroup,
     checkout,
     status: flags?.status ?? "live",
+    highlights: flags?.plain ? [] : (flags?.highlights ?? autoHighlights(digits)),
   };
 }
 
 export const catalog: VipNumber[] = seeds
   .map(toItem)
-  .filter((item): item is VipNumber => Boolean(item));
+  .filter((item): item is VipNumber => Boolean(item))
+  .map((item, index) => (index % 10 === 9 ? { ...item, highlights: [] } : item));
 
 export function getNumber(id: string) {
   return catalog.find((item) => item.id === id);

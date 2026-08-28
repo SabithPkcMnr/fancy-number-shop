@@ -1,5 +1,13 @@
-import { createHmac } from "crypto";
-import { getStore, updateStore } from "@/lib/db";
+import { getStore } from "@/lib/db";
+import {
+  checkoutSignature,
+  fetchRazorpayPayment,
+  fulfillPaidOrder,
+  razorpayKeys,
+  signaturesMatch,
+} from "@/lib/payments";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   const body = (await request.json()) as {
@@ -7,40 +15,49 @@ export async function POST(request: Request) {
     razorpayOrderId?: string;
     razorpayPaymentId?: string;
     razorpaySignature?: string;
-    mock?: boolean;
   };
+
+  if (!body.orderId || !body.razorpayOrderId || !body.razorpayPaymentId || !body.razorpaySignature) {
+    return Response.json({ error: "Payment details are incomplete." }, { status: 400 });
+  }
 
   const store = await getStore();
   const order = store.orders.find((item) => item.id === body.orderId);
   if (!order) {
     return Response.json({ error: "Order not found." }, { status: 404 });
   }
-
-  if (!body.mock) {
-    const secret = process.env.RAZORPAY_KEY_SECRET || store.settings.razorpayKeySecret;
-    const payload = `${body.razorpayOrderId}|${body.razorpayPaymentId}`;
-    const expected = createHmac("sha256", secret).update(payload).digest("hex");
-    if (expected !== body.razorpaySignature) {
-      return Response.json({ error: "Payment signature mismatch." }, { status: 400 });
-    }
+  if (order.razorpayOrderId && order.razorpayOrderId !== body.razorpayOrderId) {
+    return Response.json({ error: "This payment does not match the order." }, { status: 400 });
   }
 
-  const upc = `${Math.floor(100000 + Math.random() * 900000)}`;
-  const soldIds = new Set(order.items.map((item) => item.id));
-  const next = {
-    ...store,
-    orders: store.orders.map((item) =>
-      item.id === order.id
-        ? {
-            ...item,
-            status: "paid" as const,
-            paymentId: body.razorpayPaymentId || item.paymentId,
-            upc,
-          }
-        : item,
-    ),
-    numbers: store.numbers.map((item) => (soldIds.has(item.id) ? { ...item, status: "sold" as const } : item)),
-  };
-  await updateStore(next);
-  return Response.json({ ok: true, upc, number: order.items[0]?.pattern });
+  const { keyId, keySecret } = razorpayKeys(store.settings);
+  if (!keyId || !keySecret) {
+    return Response.json({ error: "Razorpay is not configured." }, { status: 503 });
+  }
+
+  const expected = checkoutSignature(body.razorpayOrderId, body.razorpayPaymentId, keySecret);
+  if (!signaturesMatch(expected, body.razorpaySignature)) {
+    return Response.json({ error: "Payment signature mismatch. This purchase was not confirmed." }, { status: 400 });
+  }
+
+  const payment = await fetchRazorpayPayment(body.razorpayPaymentId, keyId, keySecret);
+  if (!payment || payment.order_id !== body.razorpayOrderId) {
+    return Response.json({ error: "Razorpay could not confirm this payment." }, { status: 400 });
+  }
+  if (payment.status !== "captured" && payment.status !== "authorized") {
+    return Response.json({ error: `Payment is ${payment.status}, not captured yet.` }, { status: 409 });
+  }
+  if (payment.amount !== order.total * 100) {
+    return Response.json({ error: "Paid amount does not match this order." }, { status: 400 });
+  }
+
+  const result = await fulfillPaidOrder({
+    orderId: order.id,
+    razorpayOrderId: body.razorpayOrderId,
+    razorpayPaymentId: body.razorpayPaymentId,
+  });
+  if (!result) {
+    return Response.json({ error: "Order could not be updated." }, { status: 500 });
+  }
+  return Response.json({ ...result, token: order.confirmToken });
 }

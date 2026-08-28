@@ -1,7 +1,8 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { catalog } from "./catalog";
-import { defaultSettings, fallbackNav } from "./site";
+import { autoHighlights } from "./highlights";
+import { defaultSettings, fallbackNav, publicSettings } from "./site";
 import type {
   AppData,
   Inquiry,
@@ -12,7 +13,6 @@ import type {
   Slide,
   VipNumber,
 } from "./types";
-import { publicSettings } from "./site";
 
 const dataDir = path.join(process.cwd(), "data");
 const storePath = path.join(dataDir, "store.json");
@@ -155,6 +155,8 @@ function seedData(): AppData {
 
 let memory: AppData | null = null;
 let writeQueue = Promise.resolve();
+let loadedRev = 0;
+const STORE_REV = 3;
 
 function withLock<T>(fn: () => Promise<T>) {
   const run = writeQueue.then(fn, fn);
@@ -169,11 +171,31 @@ async function ensureDir() {
   await fs.mkdir(dataDir, { recursive: true });
 }
 
+function mergeNumbers(raw: VipNumber[] | undefined, seedNumbers: VipNumber[]) {
+  const list = raw?.length ? raw : seedNumbers;
+  const have = new Set(list.map((item) => item.id));
+  const extra = seedNumbers.filter((item) => !have.has(item.id));
+  const seedMap = new Map(seedNumbers.map((item) => [item.id, item]));
+  return [...extra, ...list].map((item) => {
+    if (item.highlights?.some((range) => range.color)) return item;
+    const seeded = seedMap.get(item.id);
+    if (seeded && "highlights" in seeded) return { ...item, highlights: seeded.highlights ?? [] };
+    return { ...item, highlights: autoHighlights(item.digits) };
+  });
+}
+
 function mergeStore(raw: Partial<AppData>): AppData {
   const seed = seedData();
   return {
-    settings: { ...seed.settings, ...raw.settings, trustLine: raw.settings?.trustLine || seed.settings.trustLine },
-    numbers: raw.numbers?.length ? raw.numbers : seed.numbers,
+    settings: {
+      ...seed.settings,
+      ...raw.settings,
+      trustLine: raw.settings?.trustLine || seed.settings.trustLine,
+      onesignalAppId: raw.settings?.onesignalAppId ?? seed.settings.onesignalAppId,
+      onesignalRestApiKey: raw.settings?.onesignalRestApiKey ?? seed.settings.onesignalRestApiKey,
+      razorpayWebhookSecret: raw.settings?.razorpayWebhookSecret ?? seed.settings.razorpayWebhookSecret,
+    },
+    numbers: mergeNumbers(raw.numbers, seed.numbers),
     slides: raw.slides?.length ? raw.slides : seed.slides,
     menus: raw.menus?.length ? raw.menus : seed.menus,
     users: raw.users ?? seed.users,
@@ -183,13 +205,16 @@ function mergeStore(raw: Partial<AppData>): AppData {
 }
 
 export async function getStore(): Promise<AppData> {
-  if (memory) return memory;
+  if (memory && loadedRev === STORE_REV) return memory;
   try {
     const raw = await fs.readFile(storePath, "utf8");
     memory = mergeStore(JSON.parse(raw) as Partial<AppData>);
+    loadedRev = STORE_REV;
+    await persist(memory);
     return memory;
   } catch {
     memory = seedData();
+    loadedRev = STORE_REV;
     await persist(memory);
     return memory;
   }
@@ -197,6 +222,7 @@ export async function getStore(): Promise<AppData> {
 
 async function persist(next: AppData) {
   memory = next;
+  loadedRev = STORE_REV;
   await ensureDir();
   await fs.writeFile(storePath, JSON.stringify(next, null, 2), "utf8");
 }
@@ -205,6 +231,15 @@ export async function updateStore(patch: Partial<AppData>) {
   return withLock(async () => {
     const current = await getStore();
     const next = { ...current, ...patch };
+    await persist(next);
+    return next;
+  });
+}
+
+export async function mutateStore(fn: (current: AppData) => AppData) {
+  return withLock(async () => {
+    const current = await getStore();
+    const next = fn(current);
     await persist(next);
     return next;
   });

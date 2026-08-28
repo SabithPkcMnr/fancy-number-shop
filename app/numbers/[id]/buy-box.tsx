@@ -11,16 +11,24 @@ export function BuyBox({ item, meaning }: { item: VipNumber; meaning: string }) 
   const wished = wishlist.includes(item.id);
 
   return (
-    <div className="card-surface p-6">
-      <div className="text-lg">
-        <span className="text-muted line-through mr-3">{inr(item.originalPrice)}</span>
-        <span className="text-3xl text-azure font-extrabold">{inr(item.price)}</span>
-        <span className="ml-3 text-sm text-danger font-semibold">{item.discount}% off</span>
+    <div className="card-surface min-w-0 p-5 sm:p-6">
+      <div className="flex flex-col gap-1.5 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-3">
+        <span className="text-sm sm:text-lg text-muted line-through">{inr(item.originalPrice)}</span>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="text-[1.75rem] sm:text-3xl leading-none text-azure font-extrabold">
+            {inr(item.price)}
+          </span>
+          {item.discount > 0 && (
+            <span className="shrink-0 whitespace-nowrap rounded-md bg-red-50 px-2 py-0.5 text-sm text-danger font-semibold">
+              {item.discount}% off
+            </span>
+          )}
+        </div>
       </div>
-      <p className="mt-3 inline-flex rounded-full bg-sky px-3 py-1 text-xs font-bold uppercase tracking-wider text-azure">
+      <p className="mt-4 inline-flex max-w-full rounded-full bg-sky px-3 py-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-azure">
         {item.checkout === "whatsapp" ? "Buy on WhatsApp" : "Pay securely with Razorpay"}
       </p>
-      <p className="mt-4 text-sm text-muted leading-relaxed">{meaning}</p>
+      <p className="mt-5 text-sm text-muted leading-relaxed">{meaning}</p>
       {item.prebookDate && (
         <p className="mt-4 text-sm">
           UPC available{" "}

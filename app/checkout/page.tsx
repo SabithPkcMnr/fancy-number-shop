@@ -2,13 +2,17 @@
 
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { inr } from "@/lib/site";
 import { useStore } from "@/lib/store";
+import { PatternHighlight } from "@/components/pattern-highlight";
 
 declare global {
   interface Window {
-    Razorpay?: new (options: Record<string, unknown>) => { open: () => void };
+    Razorpay?: new (options: Record<string, unknown>) => {
+      open: () => void;
+      on: (event: string, handler: (response: { error?: { description?: string } }) => void) => void;
+    };
   }
 }
 
@@ -22,9 +26,9 @@ export default function CheckoutPage() {
 
 function CheckoutForm() {
   const params = useSearchParams();
+  const router = useRouter();
   const { findNumber, user, settings } = useStore();
   const item = findNumber(params.get("id") ?? "");
-  const [done, setDone] = useState<{ upc: string; number: string } | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -37,23 +41,6 @@ function CheckoutForm() {
       script.remove();
     };
   }, []);
-
-  if (done) {
-    return (
-      <div className="mx-auto max-w-lg px-6 py-20 text-center">
-        <p className="text-xs font-bold uppercase tracking-[0.22em] text-azure">Payment received</p>
-        <h1 className="font-display text-5xl mt-3">Your UPC is ready</h1>
-        <p className="mt-6 text-muted">
-          Porting code for <strong className="text-ink">{done.number}</strong> has been issued. Take this to any Jio,
-          Airtel, Vi or BSNL retailer with Aadhaar.
-        </p>
-        <p className="mt-8 font-display text-4xl tracking-[0.2em]">{done.upc}</p>
-        <Link href="/numbers" className="mt-10 inline-block text-sm font-semibold text-azure">
-          Browse more numbers
-        </Link>
-      </div>
-    );
-  }
 
   if (!item || item.checkout !== "razorpay") {
     return (
@@ -91,20 +78,13 @@ function CheckoutForm() {
             const data = await res.json();
             if (!res.ok) {
               setError(data.error || "Could not start payment.");
+              setBusy(false);
               return;
             }
-            if (data.mock) {
-              const verify = await fetch("/api/checkout/verify", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ orderId: data.orderId, mock: true }),
-              });
-              const result = await verify.json();
-              setDone({ upc: result.upc, number: result.number });
-              return;
-            }
+            sessionStorage.setItem("fns_confirm", data.confirmToken);
             if (!window.Razorpay) {
               setError("Razorpay checkout is still loading. Try again in a moment.");
+              setBusy(false);
               return;
             }
             const rzp = new window.Razorpay({
@@ -115,6 +95,14 @@ function CheckoutForm() {
               description: `VIP number ${item.pattern}`,
               order_id: data.razorpayOrderId,
               prefill: { name: customer.name, contact: customer.phone, email: customer.email },
+              notes: { storeOrderId: data.orderId, digits: item.digits },
+              theme: { color: "#0f766e" },
+              modal: {
+                ondismiss: () => {
+                  setBusy(false);
+                  setError("Payment window closed. If money was deducted, wait a moment and open your confirmation link.");
+                },
+              },
               handler: async (response: {
                 razorpay_payment_id: string;
                 razorpay_order_id: string;
@@ -133,21 +121,25 @@ function CheckoutForm() {
                 const result = await verify.json();
                 if (!verify.ok) {
                   setError(result.error || "Payment verification failed.");
+                  setBusy(false);
                   return;
                 }
-                setDone({ upc: result.upc, number: result.number });
+                router.push(`/checkout/confirmed?token=${encodeURIComponent(result.token || data.confirmToken)}`);
               },
+            });
+            rzp.on("payment.failed", (response) => {
+              setBusy(false);
+              setError(response.error?.description || "Payment failed. No money was captured.");
             });
             rzp.open();
           } catch {
             setError("Payment could not be started.");
-          } finally {
             setBusy(false);
           }
         }}
       >
         <h1 className="font-display text-4xl sm:text-5xl">Checkout</h1>
-        <p className="text-muted">Pay securely with Razorpay. We will send the UPC to your mobile.</p>
+        <p className="text-muted">Pay securely with Razorpay. Your UPC is issued only after Razorpay confirms the payment.</p>
         <input required name="name" defaultValue={user?.name} placeholder="Full name as on Aadhaar" className="w-full h-12 rounded-xl border border-line px-3" />
         <input required name="phone" defaultValue={user?.phone} placeholder="Mobile for UPC SMS" className="w-full h-12 rounded-xl border border-line px-3" />
         <input required name="email" defaultValue={user?.email} placeholder="Email" className="w-full h-12 rounded-xl border border-line px-3" />
@@ -158,12 +150,14 @@ function CheckoutForm() {
         </label>
         {error && <p className="text-sm text-danger">{error}</p>}
         <button disabled={busy} className="btn-primary w-full h-12">
-          {busy ? "Starting payment…" : `Pay ${inr(item.price)}`}
+          {busy ? "Opening Razorpay…" : `Pay ${inr(item.price)}`}
         </button>
       </form>
       <aside className="card-surface p-6 h-fit">
         <h2 className="text-xs font-bold uppercase tracking-wider text-muted">Your number</h2>
-        <p className="mt-4 font-display text-3xl number-digits">{item.pattern}</p>
+        <p className="mt-4 font-display text-3xl number-digits">
+          <PatternHighlight pattern={item.pattern} digits={item.digits} highlights={item.highlights} />
+        </p>
         <p className="text-sm text-muted mt-1">{item.digits}</p>
         <div className="flex justify-between mt-6 pt-4 border-t border-line font-semibold">
           <span>Total</span>

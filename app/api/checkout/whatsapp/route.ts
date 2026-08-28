@@ -1,4 +1,6 @@
 import { findNumber, getStore, nextOrderId, updateStore } from "@/lib/db";
+import { notifyAdmins } from "@/lib/notify";
+import { inr } from "@/lib/site";
 
 export async function POST(request: Request) {
   const body = (await request.json()) as { id?: string; name?: string; phone?: string };
@@ -27,6 +29,11 @@ export async function POST(request: Request) {
       },
       ...store.orders,
     ],
+  });
+  await notifyAdmins({
+    title: "WhatsApp booking",
+    message: `${orderId} · ${number.pattern} · ${inr(number.price)}`,
+    url: "/admin/orders",
   });
 
   return Response.json({ ok: true, orderId });

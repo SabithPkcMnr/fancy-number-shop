@@ -168,9 +168,54 @@ textarea:focus {
   letter-spacing: 0.04em;
 }
 
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.75rem;
+  padding: 0 1.25rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-outline:hover {
+  border-color: var(--azure);
+  color: var(--azure);
+}
+
 .card-surface {
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 1.25rem;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+.digit-hl-gold {
+  color: #d97706;
+}
+
+.digit-hl-teal {
+  color: #0f766e;
+}
+
+.digit-hl-violet {
+  color: #7c3aed;
+}
+
+.digit-hl-dark.digit-hl-gold {
+  color: #fbbf24;
+}
+
+.digit-hl-dark.digit-hl-teal {
+  color: #5eead4;
+}
+
+.digit-hl-dark.digit-hl-violet {
+  color: #ddd6fe;
 }

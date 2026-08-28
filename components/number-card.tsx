@@ -8,6 +8,7 @@ import { inr } from "@/lib/site";
 import { type VipNumber } from "@/lib/catalog";
 import { useStore } from "@/lib/store";
 import { BuyButton } from "./buy-button";
+import { PatternHighlight } from "./pattern-highlight";
 
 export function NumberCard({ item }: { item: VipNumber }) {
   const { toggleWishlist, wishlist } = useStore();
@@ -15,7 +16,7 @@ export function NumberCard({ item }: { item: VipNumber }) {
   const wished = wishlist.includes(item.id);
 
   return (
-    <article className="vip-card group relative min-w-0 bg-paper border border-line rounded-2xl p-3.5 sm:p-5 text-center shadow-sm hover:shadow-xl hover:shadow-azure/10 hover:-translate-y-0.5 transition-all">
+    <article className="vip-card group relative min-w-0 bg-paper border border-line rounded-2xl p-5 text-center shadow-sm hover:shadow-xl hover:shadow-azure/10 hover:-translate-y-0.5 transition-all">
       {item.discount > 0 && (
         <span className="absolute left-3 top-3 bg-danger text-white text-[11px] font-bold px-2 py-0.5 rounded-md">
           {item.discount}%
@@ -35,23 +36,28 @@ export function NumberCard({ item }: { item: VipNumber }) {
         </p>
       )}
 
-      <div className="mt-4 mb-1 text-xs sm:text-sm">
-        <span className="text-muted line-through mr-1.5 sm:mr-2">{inr(item.originalPrice)}</span>
+      <div className="mt-4 mb-1 text-sm">
+        <span className="text-muted line-through mr-2">{inr(item.originalPrice)}</span>
         <span className="text-azure font-extrabold">{inr(item.price)}</span>
       </div>
 
       <Link href={`/numbers/${item.id}`} className="block min-w-0">
-        <p className="text-[11px] sm:text-[13px] text-muted number-digits whitespace-nowrap overflow-hidden text-ellipsis">
+        <p className="text-[13px] text-muted number-digits whitespace-nowrap overflow-hidden text-ellipsis">
           {item.digits}
         </p>
-        <FitNumber>{item.pattern}</FitNumber>
-        <p className="mt-2 text-[11px] sm:text-[13px] text-muted">{numerology.display}</p>
+        <FitNumber pattern={item.pattern} digits={item.digits} highlights={item.highlights} />
+        <p className="mt-2 text-[13px] text-muted">{numerology.display}</p>
       </Link>
 
       <p className="mt-3 text-[11px] font-semibold uppercase tracking-wider text-muted">
         {item.checkout === "whatsapp" ? "WhatsApp booking" : "Pay online"}
       </p>
-      <BuyButton item={item} className="mt-3" />
+      <div className="mt-3 grid grid-cols-1 @[280px]:grid-cols-2 gap-2">
+        <Link href={`/numbers/${item.id}`} className="btn-outline w-full min-w-0 px-2">
+          See Details
+        </Link>
+        <BuyButton item={item} className="min-w-0 px-2" />
+      </div>
     </article>
   );
 }
@@ -65,7 +71,7 @@ export function NumberGrid({ items }: { items: VipNumber[] }) {
     );
   }
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
       {items.map((item) => (
         <NumberCard key={item.id} item={item} />
       ))}
@@ -73,7 +79,15 @@ export function NumberGrid({ items }: { items: VipNumber[] }) {
   );
 }
 
-function FitNumber({ children }: { children: string }) {
+function FitNumber({
+  pattern,
+  digits,
+  highlights,
+}: {
+  pattern: string;
+  digits: string;
+  highlights?: VipNumber["highlights"];
+}) {
   const ref = useRef<HTMLHeadingElement>(null);
 
   useLayoutEffect(() => {
@@ -107,11 +121,11 @@ function FitNumber({ children }: { children: string }) {
       observer.disconnect();
       void fonts;
     };
-  }, [children]);
+  }, [pattern, digits, highlights]);
 
   return (
     <h3 ref={ref} className="vip-number mt-1 font-display w-full px-0.5">
-      {children}
+      <PatternHighlight pattern={pattern} digits={digits} highlights={highlights} />
     </h3>
   );
 }

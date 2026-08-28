@@ -14,6 +14,7 @@ import {
   ExternalLink,
   LogOut,
 } from "lucide-react";
+import { AdminPush } from "./push";
 
 const links = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -55,6 +56,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <Link href="/" className="flex items-center gap-2 text-sm text-white/70 hover:text-white">
           <ExternalLink size={15} /> View website
         </Link>
+        <div className="mt-3">
+          <AdminPush />
+        </div>
         <button
           className="mt-3 flex items-center gap-2 text-sm text-white/70 hover:text-white"
           onClick={async () => {
@@ -66,11 +70,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </button>
       </aside>
       <div className="md:pl-64">
-        <header className="md:hidden sticky top-0 z-20 bg-navy text-white px-4 py-3 flex items-center justify-between">
+        <header className="md:hidden sticky top-0 z-20 bg-navy text-white px-4 py-3 flex items-center justify-between gap-2">
           <p className="font-bold">FNS Admin</p>
-          <Link href="/" className="text-xs">
-            View site
-          </Link>
+          <div className="flex items-center gap-2">
+            <AdminPush />
+            <Link href="/" className="text-xs">
+              View site
+            </Link>
+          </div>
         </header>
         <div className="md:hidden overflow-x-auto bg-white border-b border-line px-3 py-2 flex gap-2">
           {links.map((item) => (

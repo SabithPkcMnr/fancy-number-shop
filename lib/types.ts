@@ -22,6 +22,14 @@ export type CategorySlug =
   | "ending-0000"
   | "unique";
 
+export type HighlightColor = "gold" | "teal" | "violet";
+
+export type DigitHighlight = {
+  start: number;
+  end: number;
+  color?: HighlightColor;
+};
+
 export type VipNumber = {
   id: string;
   digits: string;
@@ -38,6 +46,7 @@ export type VipNumber = {
   familyGroup?: string;
   checkout: CheckoutMode;
   status: NumberStatus;
+  highlights?: DigitHighlight[];
 };
 
 export type Slide = {
@@ -83,6 +92,9 @@ export type Order = {
   customer: { name: string; phone: string; email: string; city: string };
   payment: "razorpay" | "whatsapp" | "manual";
   paymentId?: string;
+  razorpayOrderId?: string;
+  confirmToken?: string;
+  paidAt?: string;
   status: OrderStatus;
   upc?: string;
   notes?: string;
@@ -122,6 +134,9 @@ export type SiteSettings = {
   ticker: string[];
   razorpayKeyId: string;
   razorpayKeySecret: string;
+  razorpayWebhookSecret: string;
+  onesignalAppId: string;
+  onesignalRestApiKey: string;
   adminUser: string;
   adminPassword: string;
   defaultCheckout: CheckoutMode;
@@ -137,7 +152,10 @@ export type AppData = {
   inquiries: Inquiry[];
 };
 
-export type PublicSettings = Omit<SiteSettings, "razorpayKeySecret" | "adminUser" | "adminPassword">;
+export type PublicSettings = Omit<
+  SiteSettings,
+  "razorpayKeySecret" | "razorpayWebhookSecret" | "onesignalRestApiKey" | "adminUser" | "adminPassword"
+>;
 
 export type PublicPayload = {
   settings: PublicSettings;

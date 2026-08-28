@@ -1,4 +1,5 @@
 import { getStore, nextId, updateStore } from "@/lib/db";
+import { notifyAdmins } from "@/lib/notify";
 
 export async function POST(request: Request) {
   const body = (await request.json()) as { name?: string; phone?: string; email?: string };
@@ -23,5 +24,10 @@ export async function POST(request: Request) {
     createdAt: new Date().toISOString(),
   };
   await updateStore({ users: [user, ...store.users] });
+  await notifyAdmins({
+    title: "New customer",
+    message: `${user.name} · ${user.phone}`,
+    url: "/admin/users",
+  });
   return Response.json({ ok: true, user });
 }

@@ -1,4 +1,5 @@
 import { getStore, nextId, updateStore } from "@/lib/db";
+import { notifyAdmins } from "@/lib/notify";
 import type { Inquiry } from "@/lib/types";
 
 export async function POST(request: Request) {
@@ -28,5 +29,10 @@ export async function POST(request: Request) {
     createdAt: new Date().toISOString(),
   };
   await updateStore({ inquiries: [inquiry, ...store.inquiries] });
+  await notifyAdmins({
+    title: "New inquiry",
+    message: `${name} · ${phone} · ${message.slice(0, 80)}`,
+    url: "/admin/inquiries",
+  });
   return Response.json({ ok: true });
 }

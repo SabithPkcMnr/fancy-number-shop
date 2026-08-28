@@ -28,6 +28,9 @@ export const defaultSettings: SiteSettings = {
   ],
   razorpayKeyId: "",
   razorpayKeySecret: "",
+  razorpayWebhookSecret: "",
+  onesignalAppId: "",
+  onesignalRestApiKey: "",
   adminUser: "admin",
   adminPassword: "FancyShop@2026",
   defaultCheckout: "whatsapp",
@@ -90,7 +93,14 @@ export function formatPattern(digits: string) {
 }
 
 export function publicSettings(settings: SiteSettings): PublicSettings {
-  const { razorpayKeySecret: _secret, adminUser: _user, adminPassword: _pass, ...rest } = settings;
+  const {
+    razorpayKeySecret: _secret,
+    razorpayWebhookSecret: _hook,
+    onesignalRestApiKey: _onesignal,
+    adminUser: _user,
+    adminPassword: _pass,
+    ...rest
+  } = settings;
   return rest;
 }
 

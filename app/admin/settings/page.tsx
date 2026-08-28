@@ -10,7 +10,14 @@ export default function AdminSettingsPage() {
   const [note, setNote] = useState("");
 
   useEffect(() => {
-    if (data) setForm(data.settings);
+    if (data) {
+      setForm({
+        ...data.settings,
+        razorpayWebhookSecret: data.settings.razorpayWebhookSecret ?? "",
+        onesignalAppId: data.settings.onesignalAppId ?? "",
+        onesignalRestApiKey: data.settings.onesignalRestApiKey ?? "",
+      });
+    }
   }, [data]);
 
   if (!form) return <p className="text-muted">Loading settings…</p>;
@@ -57,11 +64,33 @@ export default function AdminSettingsPage() {
         <Field label="Ticker (comma separated)" value={form.ticker.join(", ")} onChange={(v) => set("ticker", v.split(",").map((part) => part.trim()).filter(Boolean))} />
         <Field label="Razorpay Key ID" value={form.razorpayKeyId} onChange={(v) => set("razorpayKeyId", v)} />
         <Field label="Razorpay Key Secret" value={form.razorpayKeySecret} onChange={(v) => set("razorpayKeySecret", v)} type="password" />
+        <Field label="Razorpay webhook secret" value={form.razorpayWebhookSecret} onChange={(v) => set("razorpayWebhookSecret", v)} type="password" />
+        <p className="sm:col-span-2 text-xs text-muted -mt-2">
+          In Razorpay Dashboard → Webhooks, add <span className="font-mono">{form.domain.replace(/\/$/, "")}/api/checkout/webhook</span> for
+          events <span className="font-mono">payment.captured</span> and <span className="font-mono">order.paid</span>.
+        </p>
+        <Field label="OneSignal App ID" value={form.onesignalAppId} onChange={(v) => set("onesignalAppId", v)} />
+        <Field label="OneSignal REST API key" value={form.onesignalRestApiKey} onChange={(v) => set("onesignalRestApiKey", v)} type="password" />
+        <p className="sm:col-span-2 text-xs text-muted -mt-2">
+          After saving, tap <strong>Alerts</strong> in the admin bar and allow notifications on this browser. Use the test
+          button below.
+        </p>
         <Field label="Admin username" value={form.adminUser} onChange={(v) => set("adminUser", v)} />
         <Field label="Admin password" value={form.adminPassword} onChange={(v) => set("adminPassword", v)} type="password" />
-        <div className="sm:col-span-2">
-          {note && <p className="text-sm text-azure mb-3">{note}</p>}
+        <div className="sm:col-span-2 flex flex-col sm:flex-row gap-2">
+          {note && <p className="text-sm text-azure mb-3 sm:mb-0 sm:mr-auto">{note}</p>}
           <button className="btn-primary">Save settings</button>
+          <button
+            type="button"
+            className="h-11 px-4 rounded-xl border border-line text-sm font-semibold"
+            onClick={async () => {
+              const res = await fetch("/api/admin/notify-test", { method: "POST" });
+              const body = await res.json();
+              setNote(body.ok ? "Test notification sent. Check this browser." : body.error || "Notification failed.");
+            }}
+          >
+            Send test notification
+          </button>
         </div>
       </form>
     </div>

@@ -16,7 +16,7 @@ export default function AdminHomePage() {
   const cards = [
     { label: "Live numbers", value: live, href: "/admin/numbers" },
     { label: "Sold numbers", value: sold, href: "/admin/numbers" },
-    { label: "Orders", value: data.orders.length, href: "/admin/orders" },
+    { label: "Orders & bookings", value: data.orders.length, href: "/admin/orders" },
     { label: "Revenue", value: inr(revenue), href: "/admin/orders" },
     { label: "Registered users", value: data.users.length, href: "/admin/users" },
     { label: "Open inquiries", value: data.inquiries.filter((item) => item.status !== "closed").length, href: "/admin/inquiries" },
@@ -25,7 +25,9 @@ export default function AdminHomePage() {
   return (
     <div>
       <h1 className="font-display text-3xl">Dashboard</h1>
-      <p className="text-muted mt-1">Pending orders: {pending}. Website: fancynumbershop.com</p>
+      <p className="text-muted mt-1">
+        {pending} orders need action. Website: fancynumbershop.com
+      </p>
       <div className="mt-6 grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
         {cards.map((card) => (
           <Link key={card.label} href={card.href} className="card-surface p-5 hover:border-azure">
