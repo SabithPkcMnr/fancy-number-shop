@@ -37,8 +37,8 @@ export function Header() {
 
       <header className="sticky top-0 z-40 bg-paper/95 backdrop-blur border-b border-line">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="flex h-16 sm:h-[76px] items-center justify-between gap-2 sm:gap-6">
-            <button className="lg:hidden p-2 -ml-2 shrink-0" onClick={() => setOpenNav(true)} aria-label="Open menu">
+          <div className="flex h-14 sm:h-[76px] items-center justify-between gap-3 sm:gap-6">
+            <button className="lg:hidden grid h-9 w-9 shrink-0 place-items-center -ml-1" onClick={() => setOpenNav(true)} aria-label="Open menu">
               <Menu size={22} />
             </button>
 
@@ -66,18 +66,18 @@ export function Header() {
               ))}
             </nav>
 
-            <div className="flex items-center gap-1.5 sm:gap-4 shrink-0">
-              <a href={settings.phoneHref} className="flex items-center gap-2 text-azure font-semibold" aria-label={settings.phone}>
+            <div className="flex items-center gap-0.5 sm:gap-3 shrink-0">
+              <a href={settings.phoneHref} className="grid h-9 w-9 sm:h-auto sm:w-auto sm:flex sm:items-center sm:gap-2 place-items-center text-azure font-semibold" aria-label={settings.phone}>
                 <Phone size={18} />
                 <span className="hidden md:inline text-sm">{settings.phone}</span>
               </a>
-              <button onClick={() => setOpenSearch(true)} aria-label="Search" className="p-1">
+              <button onClick={() => setOpenSearch(true)} aria-label="Search" className="grid h-9 w-9 place-items-center">
                 <Search size={20} />
               </button>
-              <button onClick={() => setOpenAuth(true)} aria-label="Account" className="hidden sm:block p-1">
+              <button onClick={() => setOpenAuth(true)} aria-label="Account" className="hidden sm:grid h-9 w-9 place-items-center">
                 <User size={20} />
               </button>
-              <Link href="/wishlist" aria-label="Wishlist" className="relative p-1">
+              <Link href="/wishlist" aria-label="Wishlist" className="relative grid h-9 w-9 place-items-center">
                 <Heart size={20} />
                 {wishlist.length > 0 && (
                   <span className="absolute -top-1 -right-1 h-4 min-w-4 rounded-full bg-azure text-[10px] text-white flex items-center justify-center px-1">

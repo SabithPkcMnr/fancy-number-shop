@@ -42,13 +42,17 @@ export function Hero() {
         <div className="absolute -right-10 top-10 hidden lg:block text-white/10 font-extrabold text-[140px] leading-none select-none pointer-events-none">
           786
         </div>
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-3 pb-10 sm:pt-20 sm:pb-32 lg:pt-24 lg:pb-36">
-          <p className="hidden sm:block text-xs font-bold tracking-[0.22em] uppercase text-amber-200">{slide.kicker}</p>
-          <h1 className="font-display text-[1.05rem] leading-snug sm:text-6xl lg:text-7xl max-w-2xl sm:mt-4 text-white sm:leading-[1.12] text-balance">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-5 pb-14 sm:pt-20 sm:pb-32 lg:pt-24 lg:pb-36">
+          <p className="text-[10px] sm:text-xs font-bold tracking-[0.18em] sm:tracking-[0.22em] uppercase text-amber-200">
+            {slide.kicker}
+          </p>
+          <h1 className="font-display mt-1.5 text-[1.4rem] leading-[1.2] sm:mt-4 sm:text-6xl sm:leading-[1.12] lg:text-7xl max-w-2xl text-white text-balance">
             {slide.title}
           </h1>
-          <p className="hidden sm:block mt-5 max-w-lg text-white/80 text-[15px] sm:text-lg text-pretty">{slide.text}</p>
-          <div className="hidden sm:flex mt-8 flex-wrap gap-3">
+          <p className="mt-1.5 max-w-lg text-[13px] leading-snug text-white/75 line-clamp-1 sm:mt-5 sm:text-[15px] sm:leading-normal sm:text-lg sm:line-clamp-none sm:text-pretty">
+            {slide.text}
+          </p>
+          <div className="mt-4 hidden sm:flex flex-wrap gap-3">
             <Link href={slide.ctaHref || "/numbers"} className="h-12 px-7 inline-flex items-center rounded-xl bg-white text-navy text-sm font-bold">
               {slide.ctaLabel || "Browse VIP numbers"}
             </Link>
@@ -66,6 +70,7 @@ export function Hero() {
                 {list.map((item, i) => (
                   <button
                     key={item.id}
+                    type="button"
                     onClick={() => setIndex(i)}
                     className={`h-1.5 sm:h-2.5 rounded-full transition-all ${i === index ? "w-5 sm:w-8 bg-white" : "w-1.5 sm:w-2.5 bg-white/40"}`}
                     aria-label={`Slide ${i + 1}`}
@@ -74,6 +79,7 @@ export function Hero() {
               </div>
               <div className="hidden sm:flex items-center gap-2">
                 <button
+                  type="button"
                   onClick={() => setIndex((i) => (i - 1 + list.length) % list.length)}
                   className="grid place-items-center h-10 w-10 rounded-full bg-white text-navy shadow-sm hover:bg-white/90"
                   aria-label="Previous"
@@ -81,6 +87,7 @@ export function Hero() {
                   <ChevronLeft size={18} />
                 </button>
                 <button
+                  type="button"
                   onClick={() => setIndex((i) => (i + 1) % list.length)}
                   className="grid place-items-center h-10 w-10 rounded-full bg-white text-navy shadow-sm hover:bg-white/90"
                   aria-label="Next"

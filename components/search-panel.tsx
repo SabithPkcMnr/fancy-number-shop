@@ -34,7 +34,7 @@ export function SearchPanel({ compact, onSearch }: Props) {
       className={
         compact
           ? ""
-          : "relative overflow-hidden rounded-2xl sm:rounded-[28px] border border-teal-100 bg-paper shadow-[0_12px_32px_rgba(8,47,59,0.1)] sm:shadow-[0_24px_60px_rgba(8,47,59,0.14)] p-3 sm:p-8"
+          : "relative overflow-hidden rounded-2xl sm:rounded-[28px] border border-teal-100 bg-paper shadow-[0_12px_32px_rgba(8,47,59,0.1)] sm:shadow-[0_24px_60px_rgba(8,47,59,0.14)] p-3.5 sm:p-8"
       }
     >
       {!compact && (
@@ -44,7 +44,7 @@ export function SearchPanel({ compact, onSearch }: Props) {
         </>
       )}
 
-      <div className="relative grid grid-cols-3 gap-1.5 sm:gap-2">
+      <div className="relative grid grid-cols-3 gap-2">
         {(
           [
             ["digits", "Digits", "By digits", Hash],
@@ -56,15 +56,15 @@ export function SearchPanel({ compact, onSearch }: Props) {
             type="button"
             key={id}
             onClick={() => setMode(id)}
-            className={`h-10 sm:h-14 rounded-xl sm:rounded-2xl text-[12px] sm:text-sm font-bold transition-all ${
+            className={`flex h-10 sm:h-14 min-w-0 items-center justify-center rounded-xl sm:rounded-2xl px-1 text-[11px] sm:text-sm font-bold transition-all ${
               mode === id
                 ? "bg-azure text-white shadow-sm sm:shadow-lg sm:shadow-azure/25"
                 : "bg-sky/90 text-ink hover:bg-sky"
             }`}
           >
-            <span className="inline-flex items-center justify-center gap-1.5 sm:gap-2">
-              <Icon size={15} />
-              <span className="sm:hidden">{short}</span>
+            <span className="inline-flex min-w-0 items-center justify-center gap-1 sm:gap-2">
+              <Icon size={14} className="shrink-0" />
+              <span className="truncate sm:hidden">{short}</span>
               <span className="hidden sm:inline">{label}</span>
             </span>
           </button>
@@ -102,7 +102,7 @@ export function SearchPanel({ compact, onSearch }: Props) {
           </div>
 
           <div className="sm:hidden">
-            <div className="flex gap-2">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-stretch gap-2">
               <input
                 value={form.q ?? ""}
                 onChange={(e) => set("q", e.target.value)}
@@ -110,12 +110,14 @@ export function SearchPanel({ compact, onSearch }: Props) {
                 placeholder="Search digits"
                 inputMode="numeric"
                 aria-label="Search digits"
-                className="min-w-0 flex-1 h-10 rounded-xl border border-line bg-slate-50 px-3 text-sm focus:bg-white"
+                className="min-w-0 h-11 rounded-xl border border-line bg-slate-50 px-3 text-sm focus:bg-white"
               />
               <SearchBtn onClick={() => go({ q: form.q })} />
             </div>
             <details className="mt-2">
-              <summary className="cursor-pointer py-1.5 text-xs font-semibold text-azure">More filters</summary>
+              <summary className="cursor-pointer list-none py-1.5 text-xs font-semibold text-azure [&::-webkit-details-marker]:hidden">
+                More filters
+              </summary>
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <Field label="Start with" value={form.start ?? ""} onChange={(v) => set("start", v)} />
                 <Field label="End with" value={form.end ?? ""} onChange={(v) => set("end", v)} />
@@ -210,7 +212,7 @@ function Field({
         onKeyDown={(e) => e.key === "Enter" && onEnter?.()}
         placeholder={hint ?? label}
         inputMode="numeric"
-        className="w-full h-10 sm:h-12 rounded-xl sm:rounded-2xl border border-line bg-slate-50 px-3 sm:px-3.5 text-sm focus:bg-white"
+        className="w-full h-11 sm:h-12 rounded-xl sm:rounded-2xl border border-line bg-slate-50 px-3 sm:px-3.5 text-sm focus:bg-white"
       />
     </label>
   );
@@ -221,7 +223,7 @@ function SearchBtn({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="h-10 sm:h-12 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-azure sm:bg-gradient-to-r sm:from-azure sm:to-teal-600 text-white text-sm font-bold hover:bg-azure-dark sm:hover:from-azure-dark sm:hover:to-azure transition-colors shrink-0 w-auto min-w-[5.5rem] sm:min-w-36 inline-flex items-center justify-center gap-2 sm:self-end shadow-sm sm:shadow-lg sm:shadow-azure/20"
+      className="h-11 sm:h-12 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-azure sm:bg-gradient-to-r sm:from-azure sm:to-teal-600 text-white text-sm font-bold hover:bg-azure-dark sm:hover:from-azure-dark sm:hover:to-azure transition-colors shrink-0 w-auto min-w-[5.75rem] sm:min-w-36 inline-flex items-center justify-center gap-1.5 self-end shadow-sm sm:shadow-lg sm:shadow-azure/20"
     >
       <Search size={16} />
       Search
