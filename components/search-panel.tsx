@@ -170,12 +170,10 @@ export function SearchPanel({ compact, onSearch }: Props) {
       )}
 
       {mode === "price" && (
-        <div className="relative mt-3 sm:mt-6 grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+        <div className="relative mt-3 sm:mt-6 grid grid-cols-[1fr_1fr_auto] gap-2 sm:gap-3">
           <Field label="Min price" value={form.min ?? ""} onChange={(v) => set("min", v)} />
           <Field label="Max price" value={form.max ?? ""} onChange={(v) => set("max", v)} />
-          <div className="col-span-2 sm:col-span-1">
-            <SearchBtn onClick={() => go()} />
-          </div>
+          <SearchBtn onClick={() => go()} />
         </div>
       )}
 
@@ -225,7 +223,7 @@ function SearchBtn({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="h-11 sm:h-12 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-azure sm:bg-gradient-to-r sm:from-azure sm:to-orange-600 text-white text-sm font-bold hover:bg-azure-dark sm:hover:from-azure-dark sm:hover:to-azure transition-colors shrink-0 w-auto min-w-[5.75rem] sm:min-w-36 inline-flex items-center justify-center gap-1.5 self-end shadow-sm sm:shadow-lg sm:shadow-azure/20"
+      className="h-11 sm:h-12 px-3 sm:px-6 rounded-xl sm:rounded-2xl bg-azure sm:bg-gradient-to-r sm:from-azure sm:to-orange-600 text-white text-sm font-bold hover:bg-azure-dark sm:hover:from-azure-dark sm:hover:to-azure transition-colors shrink-0 w-auto min-w-[4.75rem] sm:min-w-36 inline-flex items-center justify-center gap-1.5 self-end shadow-sm sm:shadow-lg sm:shadow-azure/20"
     >
       <Search size={16} />
       Search

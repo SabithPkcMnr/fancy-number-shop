@@ -43,7 +43,7 @@ export function BuyBox({ item, meaning }: { item: VipNumber; meaning: string }) 
       )}
       <BuyButton item={item} className="mt-8" />
       {item.checkout !== "whatsapp" ? (
-        <BuyButton item={item} viaWhatsApp label="Buy via WhatsApp" className="mt-3" />
+        <BuyButton item={item} viaWhatsApp label="WhatsApp now" className="mt-3" />
       ) : null}
       <button
         onClick={() => toggleWishlist(item.id)}

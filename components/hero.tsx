@@ -47,30 +47,44 @@ export function Hero() {
         <div className="absolute -right-10 top-10 hidden lg:block text-white/10 font-extrabold text-[140px] leading-none select-none pointer-events-none">
           786
         </div>
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-5 pb-14 sm:pt-20 sm:pb-32 lg:pt-24 lg:pb-36">
-          <p className="text-[10px] sm:text-xs font-bold tracking-[0.18em] sm:tracking-[0.22em] uppercase text-amber-200">
-            {slide.kicker}
-          </p>
-          <h1 className="font-display mt-1.5 text-[1.4rem] leading-[1.2] sm:mt-4 sm:text-6xl sm:leading-[1.12] lg:text-7xl max-w-2xl text-white text-balance">
-            {slide.title}
-          </h1>
-          <p className="mt-1.5 max-w-lg text-[13px] leading-snug text-white/75 line-clamp-1 sm:mt-5 sm:text-[15px] sm:leading-normal sm:text-lg sm:line-clamp-none sm:text-pretty">
-            {slide.text}
-          </p>
-          <div className="mt-4 hidden sm:flex flex-wrap gap-3">
-            <Link href={slide.ctaHref || "/numbers"} className="h-12 px-7 inline-flex items-center rounded-xl bg-white text-navy text-sm font-bold">
-              {slide.ctaLabel || "Browse VIP numbers"}
-            </Link>
-            <Link
-              href="/numerology"
-              className="h-12 px-7 inline-flex items-center rounded-xl border border-white/30 text-white text-sm font-bold"
-            >
-              Numerology search
-            </Link>
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-7 pb-16 sm:pt-20 sm:pb-32 lg:pt-24 lg:pb-36">
+          <div className="grid">
+            {list.map((item, i) => {
+              const visible = i === index;
+              const Title = visible ? "h1" : "p";
+              return (
+                <div
+                  key={item.id}
+                  className={`col-start-1 row-start-1 ${visible ? "" : "invisible pointer-events-none"}`}
+                  aria-hidden={!visible}
+                >
+                  <p className="text-[10px] sm:text-xs font-bold tracking-[0.18em] sm:tracking-[0.22em] uppercase text-amber-200">
+                    {item.kicker}
+                  </p>
+                  <Title className="font-display mt-2 text-[1.5rem] leading-[1.22] sm:mt-4 sm:text-6xl sm:leading-[1.12] lg:text-7xl max-w-2xl text-white text-balance">
+                    {item.title}
+                  </Title>
+                  <p className="mt-2 max-w-lg text-[13px] leading-snug text-white/75 line-clamp-2 sm:mt-5 sm:text-[15px] sm:leading-normal sm:text-lg sm:line-clamp-none sm:text-pretty">
+                    {item.text}
+                  </p>
+                  <div className="mt-4 hidden sm:flex flex-wrap gap-3">
+                    <Link href={item.ctaHref || "/numbers"} className="h-12 px-7 inline-flex items-center rounded-xl bg-white text-navy text-sm font-bold">
+                      {item.ctaLabel || "Browse VIP numbers"}
+                    </Link>
+                    <Link
+                      href="/numerology"
+                      className="h-12 px-7 inline-flex items-center rounded-xl border border-white/30 text-white text-sm font-bold"
+                    >
+                      Numerology search
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           {list.length > 1 ? (
-            <div className="mt-4 sm:mt-10 flex items-center justify-between gap-4">
+            <div className="mt-5 sm:mt-10 flex items-center justify-between gap-4">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 {list.map((item, i) => (
                   <button

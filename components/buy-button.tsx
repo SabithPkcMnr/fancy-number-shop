@@ -45,7 +45,7 @@ export function BuyButton({
       className={`${whatsapp ? "btn-whatsapp" : "btn-primary"} w-full ${className}`}
     >
       {whatsapp ? <MessageCircle size={18} fill="currentColor" className="mr-1.5" /> : null}
-      {whatsapp ? label || "Buy via WhatsApp" : label || "Buy now"}
+      {whatsapp ? label || "WhatsApp now" : label || "Buy now"}
     </button>
   );
 }

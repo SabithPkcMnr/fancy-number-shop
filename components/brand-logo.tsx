@@ -2,8 +2,8 @@ const base = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 const assets = {
   full: {
-    src: `${base}/images/logo-sm.png`,
-    srcSet: `${base}/images/logo-sm.png 480w, ${base}/images/logo.png 960w`,
+    src: `${base}/images/logo.png`,
+    srcSet: `${base}/images/logo-sm.png 800w, ${base}/images/logo.png 972w`,
     alt: "FancyNumberShop",
   },
   mark: {
@@ -16,7 +16,7 @@ const assets = {
 export function BrandLogo({
   variant = "full",
   className = "h-8 w-auto",
-  sizes = "(max-width: 640px) 140px, (max-width: 1024px) 200px, 240px",
+  sizes = "(max-width: 640px) 210px, (max-width: 1024px) 220px, 250px",
 }: {
   variant?: "full" | "mark";
   className?: string;

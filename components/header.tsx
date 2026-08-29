@@ -38,13 +38,13 @@ export function Header() {
 
       <header className="sticky top-0 z-40 bg-paper/95 backdrop-blur border-b border-line">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="flex h-14 sm:h-[76px] items-center justify-between gap-3 sm:gap-6">
+          <div className="flex h-14 sm:h-16 items-center justify-between gap-3 sm:gap-6">
             <button className="lg:hidden grid h-9 w-9 shrink-0 place-items-center -ml-1" onClick={() => setOpenNav(true)} aria-label="Open menu">
               <Menu size={22} />
             </button>
 
             <Link href="/" className="flex items-center min-w-0 flex-1" aria-label="FancyNumberShop home">
-              <BrandLogo className="h-7 w-auto max-w-[min(168px,calc(100vw-11.5rem))] object-contain object-left sm:h-9 sm:max-w-[220px] lg:h-11 lg:max-w-[260px]" />
+              <BrandLogo className="h-9 w-auto max-w-[min(220px,calc(100vw-9.5rem))] object-contain object-left sm:max-w-[230px] lg:h-10 lg:max-w-[250px]" />
             </Link>
 
             <nav className="hidden xl:flex items-center gap-5 text-[13px] font-semibold">
