@@ -158,14 +158,18 @@ textarea:focus {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 2.75rem;
+  height: 3rem;
   padding: 0 1.5rem;
   border-radius: 0.85rem;
-  background: #16a34a;
+  background: #25d366;
   color: white;
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.04em;
+}
+
+.btn-whatsapp:hover {
+  background: #1ebe5d;
 }
 
 .btn-outline {

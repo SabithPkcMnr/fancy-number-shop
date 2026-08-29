@@ -29,7 +29,7 @@ export function BuyBox({ item, meaning }: { item: VipNumber; meaning: string }) 
         </div>
       </div>
       <p className="mt-4 inline-flex max-w-full rounded-full bg-sky px-3 py-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-azure">
-        {item.checkout === "whatsapp" ? "Buy on WhatsApp" : "Pay securely with Razorpay"}
+        {item.checkout === "whatsapp" ? "Buy on WhatsApp" : "Pay online or buy on WhatsApp"}
       </p>
       <p className="mt-5 text-sm text-muted leading-relaxed">{meaning}</p>
       {item.prebookDate && (
@@ -42,6 +42,9 @@ export function BuyBox({ item, meaning }: { item: VipNumber; meaning: string }) 
         </p>
       )}
       <BuyButton item={item} className="mt-8" />
+      {item.checkout !== "whatsapp" ? (
+        <BuyButton item={item} viaWhatsApp label="Buy via WhatsApp" className="mt-3" />
+      ) : null}
       <button
         onClick={() => toggleWishlist(item.id)}
         className="mt-3 w-full h-12 rounded-xl border border-line text-sm font-semibold"
