@@ -42,13 +42,13 @@ export function Hero() {
         <div className="absolute -right-10 top-10 hidden lg:block text-white/10 font-extrabold text-[140px] leading-none select-none pointer-events-none">
           786
         </div>
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-16 pb-28 sm:pt-20 sm:pb-32 lg:pt-24 lg:pb-36">
-          <p className="text-xs font-bold tracking-[0.22em] uppercase text-amber-200">{slide.kicker}</p>
-          <h1 className="font-display text-[2rem] sm:text-6xl lg:text-7xl max-w-2xl mt-4 text-white leading-[1.12] text-balance">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-3 pb-10 sm:pt-20 sm:pb-32 lg:pt-24 lg:pb-36">
+          <p className="hidden sm:block text-xs font-bold tracking-[0.22em] uppercase text-amber-200">{slide.kicker}</p>
+          <h1 className="font-display text-[1.05rem] leading-snug sm:text-6xl lg:text-7xl max-w-2xl sm:mt-4 text-white sm:leading-[1.12] text-balance">
             {slide.title}
           </h1>
-          <p className="mt-5 max-w-lg text-white/80 text-[15px] sm:text-lg text-pretty">{slide.text}</p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <p className="hidden sm:block mt-5 max-w-lg text-white/80 text-[15px] sm:text-lg text-pretty">{slide.text}</p>
+          <div className="hidden sm:flex mt-8 flex-wrap gap-3">
             <Link href={slide.ctaHref || "/numbers"} className="h-12 px-7 inline-flex items-center rounded-xl bg-white text-navy text-sm font-bold">
               {slide.ctaLabel || "Browse VIP numbers"}
             </Link>
@@ -60,34 +60,36 @@ export function Hero() {
             </Link>
           </div>
 
-          <div className="mt-10 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              {list.map((item, i) => (
+          {list.length > 1 ? (
+            <div className="mt-4 sm:mt-10 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                {list.map((item, i) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setIndex(i)}
+                    className={`h-1.5 sm:h-2.5 rounded-full transition-all ${i === index ? "w-5 sm:w-8 bg-white" : "w-1.5 sm:w-2.5 bg-white/40"}`}
+                    aria-label={`Slide ${i + 1}`}
+                  />
+                ))}
+              </div>
+              <div className="hidden sm:flex items-center gap-2">
                 <button
-                  key={item.id}
-                  onClick={() => setIndex(i)}
-                  className={`h-2.5 rounded-full transition-all ${i === index ? "w-8 bg-white" : "w-2.5 bg-white/40"}`}
-                  aria-label={`Slide ${i + 1}`}
-                />
-              ))}
+                  onClick={() => setIndex((i) => (i - 1 + list.length) % list.length)}
+                  className="grid place-items-center h-10 w-10 rounded-full bg-white text-navy shadow-sm hover:bg-white/90"
+                  aria-label="Previous"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <button
+                  onClick={() => setIndex((i) => (i + 1) % list.length)}
+                  className="grid place-items-center h-10 w-10 rounded-full bg-white text-navy shadow-sm hover:bg-white/90"
+                  aria-label="Next"
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setIndex((i) => (i - 1 + list.length) % list.length)}
-                className="grid place-items-center h-10 w-10 rounded-full bg-white text-navy shadow-sm hover:bg-white/90"
-                aria-label="Previous"
-              >
-                <ChevronLeft size={18} />
-              </button>
-              <button
-                onClick={() => setIndex((i) => (i + 1) % list.length)}
-                className="grid place-items-center h-10 w-10 rounded-full bg-white text-navy shadow-sm hover:bg-white/90"
-                aria-label="Next"
-              >
-                <ChevronRight size={18} />
-              </button>
-            </div>
-          </div>
+          ) : null}
         </div>
       </div>
     </section>

@@ -86,42 +86,30 @@ export default async function NumberPage({ params }: { params: Promise<{ id: str
         <p className="mt-3 text-muted leading-relaxed">{meaning.text}</p>
       </div>
 
-      <section className="mt-16 max-w-3xl" aria-labelledby="how-to-buy">
-        <h2 id="how-to-buy" className="font-display text-3xl">
+      <section className="mt-10 sm:mt-16 max-w-3xl" aria-labelledby="how-to-buy">
+        <h2 id="how-to-buy" className="font-display text-2xl sm:text-3xl">
           {numberBuyGuide.title}
         </h2>
-        <p className="mt-4 rounded-2xl bg-sky px-4 py-3 text-sm leading-relaxed text-azure-dark">
-          {numberBuyGuide.note}
-        </p>
-        <ol className="mt-8 space-y-8">
+        <ol className="mt-5 space-y-4">
           {numberBuyGuide.steps.map((step) => (
-            <li key={step.n} className="grid grid-cols-[56px_1fr] gap-3 sm:grid-cols-[72px_1fr] sm:gap-4">
-              <span className="font-display text-3xl sm:text-4xl text-azure">{step.n}</span>
+            <li key={step.n} className="grid grid-cols-[28px_1fr] gap-3">
+              <span className="font-display text-xl text-azure leading-7">{step.n}.</span>
               <div>
-                <h3 className="font-display text-2xl">{step.title}</h3>
-                <p className="mt-2 text-muted leading-relaxed">
-                  {"includePhone" in step && step.includePhone ? (
-                    <>
-                      If you face any problem with SIM activation, call our customer care on{" "}
-                      <a href={site.phoneHref} className="font-semibold text-azure">
-                        {site.phone}
-                      </a>
-                      . We will help you complete activation.
-                    </>
-                  ) : (
-                    step.text
-                  )}
-                </p>
+                <h3 className="font-semibold text-base sm:text-lg">{step.title}</h3>
+                <p className="mt-0.5 text-sm text-muted leading-relaxed">{step.text}</p>
               </div>
             </li>
           ))}
         </ol>
-        <p className="mt-8 text-sm text-muted">
-          Prefer a walkthrough of the full process?{" "}
+        <p className="mt-5 text-sm text-muted">
+          Need help with activation? Call{" "}
+          <a href={site.phoneHref} className="font-semibold text-azure">
+            {site.phone}
+          </a>
+          .{" "}
           <Link href="/how-it-works" className="text-azure font-semibold">
-            See how it works
+            Full process
           </Link>
-          .
         </p>
       </section>
 

@@ -18,11 +18,11 @@ export default function Home() {
     <>
       <Hero />
 
-      <section id="search" className="mx-auto max-w-7xl px-4 sm:px-6 -mt-14 sm:-mt-16 relative z-10">
+      <section id="search" className="mx-auto max-w-7xl px-4 sm:px-6 -mt-6 sm:-mt-16 relative z-10">
         <SearchPanel />
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-16">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-8 sm:mt-16">
         <HeaderRow title="VVIP Numbers" href="/numbers?featured=1" />
         <LiveNumberGrid preset="featured" limit={8} />
       </section>
@@ -85,8 +85,8 @@ export default function Home() {
 
 function HeaderRow({ title, href }: { title: string; href: string }) {
   return (
-    <div className="flex items-end justify-between mb-8">
-      <h2 className="font-display text-2xl sm:text-4xl">{title}</h2>
+    <div className="flex items-end justify-between mb-4 sm:mb-8">
+      <h2 className="font-display text-xl sm:text-4xl">{title}</h2>
       <Link href={href} className="text-sm font-semibold text-azure">
         View more
       </Link>

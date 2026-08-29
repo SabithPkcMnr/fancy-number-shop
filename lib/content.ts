@@ -104,34 +104,22 @@ export const faqs = [
 ];
 
 export const numberBuyGuide = {
-  title: "How to buy this number?",
-  note: "We do not provide the porting code immediately after purchase. Once you buy, we will contact you and share the code.",
+  title: "How to set up this number",
   steps: [
     {
-      n: "01",
-      title: "Pay for the number",
-      text: "First, complete payment for this number.",
+      n: "1",
+      title: "Pay",
+      text: "Complete payment for this number.",
     },
     {
-      n: "02",
-      title: "Receive the porting code",
-      text: "Within 24 hours of payment, we will send the porting code. The code is valid for 4 days to complete activation.",
+      n: "2",
+      title: "Get the code",
+      text: "We will contact you and share the porting code. It is valid for 4 days.",
     },
     {
-      n: "03",
-      title: "Activate at a mobile store",
-      text: "Take the porting code to the nearest mobile store with your Aadhaar card or other government ID. That is your activation process. The shopkeeper will give you the SIM after collecting recharge and SIM charges from you.",
-    },
-    {
-      n: "04",
-      title: "Wait for the SIM to go live",
-      text: "After the activation process, your SIM will be activated in 7 working days.",
-    },
-    {
-      n: "05",
-      title: "Need help with activation?",
-      text: "If you face any problem with SIM activation, call our customer care number. We will help you complete activation.",
-      includePhone: true,
+      n: "3",
+      title: "Activate",
+      text: "Take the code and Aadhaar to any mobile store. Pay SIM and recharge charges there. The number goes live in about 7 working days.",
     },
   ],
 };
