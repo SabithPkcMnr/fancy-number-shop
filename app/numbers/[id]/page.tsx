@@ -3,8 +3,9 @@ import Link from "next/link";
 import { catalog, getNumber } from "@/lib/catalog";
 import { findNumber, getStore, similarFrom } from "@/lib/db";
 import { getNumerology, destinyMeanings } from "@/lib/numerology";
-import { inr } from "@/lib/site";
+import { inr, site } from "@/lib/site";
 import { siteUrl } from "@/lib/seo";
+import { numberBuyGuide } from "@/lib/content";
 import { NumberGrid } from "@/components/number-card";
 import { PatternHighlight } from "@/components/pattern-highlight";
 import { BuyBox } from "./buy-box";
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return {
     title: item ? `Buy ${item.pattern} VIP Fancy Number` : "VIP Number",
     description: item
-      ? `Buy VIP mobile number ${item.digits} for ${inr(item.price)} from Fancy Number Shop, Mukkom, Calicut. Pay online or on WhatsApp. UPC in 60 minutes.`
+      ? `Buy VIP mobile number ${item.digits} for ${inr(item.price)} from Fancy Number Shop, Mukkom, Calicut. Pay online or on WhatsApp. Porting code shared after we contact you.`
       : "Buy VIP fancy mobile numbers online in India.",
     alternates: { canonical: url },
     openGraph: {
@@ -83,15 +84,46 @@ export default async function NumberPage({ params }: { params: Promise<{ id: str
       <div className="mt-16 max-w-2xl">
         <h2 className="font-display text-3xl">Why this number works</h2>
         <p className="mt-3 text-muted leading-relaxed">{meaning.text}</p>
-        <p className="mt-4 text-sm text-muted">
-          After payment you receive UPC and activation support. Port to Jio, Airtel, Vi or BSNL at any
-          retailer, on your name, in 4–5 days.{" "}
+      </div>
+
+      <section className="mt-16 max-w-3xl" aria-labelledby="how-to-buy">
+        <h2 id="how-to-buy" className="font-display text-3xl">
+          {numberBuyGuide.title}
+        </h2>
+        <p className="mt-4 rounded-2xl bg-sky px-4 py-3 text-sm leading-relaxed text-azure-dark">
+          {numberBuyGuide.note}
+        </p>
+        <ol className="mt-8 space-y-8">
+          {numberBuyGuide.steps.map((step) => (
+            <li key={step.n} className="grid grid-cols-[56px_1fr] gap-3 sm:grid-cols-[72px_1fr] sm:gap-4">
+              <span className="font-display text-3xl sm:text-4xl text-azure">{step.n}</span>
+              <div>
+                <h3 className="font-display text-2xl">{step.title}</h3>
+                <p className="mt-2 text-muted leading-relaxed">
+                  {"includePhone" in step && step.includePhone ? (
+                    <>
+                      If you face any problem with SIM activation, call our customer care on{" "}
+                      <a href={site.phoneHref} className="font-semibold text-azure">
+                        {site.phone}
+                      </a>
+                      . We will help you complete activation.
+                    </>
+                  ) : (
+                    step.text
+                  )}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-8 text-sm text-muted">
+          Prefer a walkthrough of the full process?{" "}
           <Link href="/how-it-works" className="text-azure font-semibold">
             See how it works
           </Link>
           .
         </p>
-      </div>
+      </section>
 
       <div className="mt-16">
         <h2 className="font-display text-3xl mb-8">Similar numbers</h2>
