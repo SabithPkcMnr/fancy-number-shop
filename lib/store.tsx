@@ -79,14 +79,15 @@ function write(next: Persisted) {
   emit();
 }
 
-if (typeof window !== "undefined") {
-  memory = read();
-}
-
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const state = useSyncExternalStore(subscribe, () => memory, () => empty);
   const hydrated = useSyncExternalStore(subscribe, () => true, () => false);
   const [publicData, setPublicData] = useState<PublicPayload>(fallbackPublic);
+
+  useEffect(() => {
+    memory = read();
+    emit();
+  }, []);
 
   useEffect(() => {
     let cancelled = false;

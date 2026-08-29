@@ -86,6 +86,15 @@ export function inr(value: number) {
   }).format(value);
 }
 
+const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+export function formatDisplayDate(value: string) {
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return value;
+  const month = months[Number(match[2]) - 1];
+  return month ? `${match[3]} ${month} ${match[1]}` : value;
+}
+
 export function formatPattern(digits: string) {
   const clean = digits.replace(/\D/g, "");
   if (clean.length !== 10) return digits;

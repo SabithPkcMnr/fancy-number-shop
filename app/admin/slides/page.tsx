@@ -34,7 +34,7 @@ export default function AdminSlidesPage() {
                   ctaLabel: "Browse VIP numbers",
                   ctaHref: "/numbers",
                   image: "",
-                  gradient: "from-teal-900 via-cyan-800 to-sky-700",
+                  gradient: "from-neutral-950 via-neutral-900 to-orange-950",
                   active: true,
                 },
               ],

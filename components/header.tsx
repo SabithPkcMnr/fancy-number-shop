@@ -6,6 +6,7 @@ import { Heart, Menu, Search, User, X, Phone } from "lucide-react";
 import { useState } from "react";
 import { fallbackNav } from "@/lib/site";
 import { useStore } from "@/lib/store";
+import { BrandLogo } from "./brand-logo";
 import { SearchPanel } from "./search-panel";
 import { AuthModal } from "./auth-modal";
 
@@ -42,16 +43,8 @@ export function Header() {
               <Menu size={22} />
             </button>
 
-            <Link href="/" className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-              <span className="h-9 w-9 sm:h-11 sm:w-11 rounded-xl sm:rounded-2xl bg-azure text-white grid place-items-center font-extrabold text-sm sm:text-lg shadow-lg shadow-azure/20 shrink-0">
-                FN
-              </span>
-              <span className="leading-tight min-w-0 hidden sm:block">
-                <span className="block font-extrabold text-[14px] sm:text-[19px] tracking-tight truncate">
-                  {settings.name}
-                </span>
-                <span className="hidden sm:block text-[11px] text-muted">{settings.tagline}</span>
-              </span>
+            <Link href="/" className="flex items-center min-w-0 flex-1" aria-label="FancyNumberShop home">
+              <BrandLogo className="h-7 w-auto max-w-[min(168px,calc(100vw-11.5rem))] object-contain object-left sm:h-9 sm:max-w-[220px] lg:h-11 lg:max-w-[260px]" />
             </Link>
 
             <nav className="hidden xl:flex items-center gap-5 text-[13px] font-semibold">
@@ -94,8 +87,8 @@ export function Header() {
         <div className="fixed inset-0 z-50 lg:hidden">
           <button className="absolute inset-0 bg-ink/40" onClick={() => setOpenNav(false)} />
           <aside className="absolute left-0 top-0 h-full w-[86%] max-w-sm bg-paper p-6 overflow-auto">
-            <div className="flex items-center justify-between">
-              <span className="font-extrabold text-lg">{settings.name}</span>
+            <div className="flex items-center justify-between gap-3">
+              <BrandLogo className="h-8 w-auto max-w-[200px] object-contain object-left" />
               <button onClick={() => setOpenNav(false)} aria-label="Close">
                 <X />
               </button>
@@ -136,11 +129,11 @@ export function Header() {
 
       {openSearch && (
         <div className="fixed inset-0 z-50">
-          <button className="absolute inset-0 bg-navy/55 backdrop-blur-[2px]" onClick={() => setOpenSearch(false)} />
-          <div className="relative h-full sm:h-auto sm:mx-auto sm:mt-8 sm:mb-8 sm:max-w-3xl sm:px-4 overflow-auto">
-            <div className="min-h-full sm:min-h-0 bg-paper sm:rounded-[28px] shadow-2xl overflow-hidden">
-              <div className="relative px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-5 sm:px-8 sm:pt-7 sm:pb-6 bg-gradient-to-br from-teal-50 via-white to-amber-50">
-                <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-azure via-teal-400 to-gold" />
+          <button type="button" className="absolute inset-0 z-0 bg-navy/55 backdrop-blur-[2px]" onClick={() => setOpenSearch(false)} aria-label="Close search overlay" />
+          <div className="relative z-10 h-full sm:h-auto sm:mx-auto sm:mt-8 sm:mb-8 sm:max-w-3xl sm:px-4 overflow-auto pointer-events-none">
+            <div className="pointer-events-auto min-h-full sm:min-h-0 bg-paper sm:rounded-[28px] shadow-2xl overflow-hidden">
+              <div className="relative px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-5 sm:px-8 sm:pt-7 sm:pb-6 bg-gradient-to-br from-orange-50 via-white to-amber-50">
+                <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-azure via-gold to-amber-300" />
                 <div className="flex justify-between items-start gap-4">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.18em] text-azure">Find a lucky number</p>

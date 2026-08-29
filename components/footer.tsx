@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { categories } from "@/lib/catalog";
 import { useStore } from "@/lib/store";
+import { BrandLogo } from "./brand-logo";
 
 export function Footer() {
   const { settings } = useStore();
@@ -10,7 +11,9 @@ export function Footer() {
     <footer className="bg-navy text-white mt-20">
       <div className="mx-auto max-w-7xl px-6 py-16 grid md:grid-cols-4 gap-10">
         <div>
-          <p className="font-extrabold text-2xl tracking-tight">{settings.name}</p>
+          <Link href="/" className="inline-flex rounded-xl bg-white px-2.5 py-2" aria-label="FancyNumberShop home">
+            <BrandLogo className="h-8 sm:h-10 w-auto max-w-[200px] object-contain object-left" />
+          </Link>
           <p className="mt-3 text-sm text-white/60">{settings.tagline}</p>
           <p className="mt-6 text-sm text-white/70 leading-relaxed">
             {settings.addressLine1}

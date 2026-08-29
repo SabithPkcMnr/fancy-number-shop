@@ -68,7 +68,7 @@ export default async function NumberPage({ params }: { params: Promise<{ id: str
         {item.categories[0].replace("-", " ")} · {item.prebook ? "Pre-booking" : "Ready now"}
       </p>
       <div className="mt-5 sm:mt-6 grid lg:grid-cols-[1.2fr_0.8fr] gap-6 lg:gap-12">
-        <div className="min-w-0 overflow-hidden rounded-3xl bg-gradient-to-br from-teal-700 via-cyan-700 to-sky-600 px-5 py-12 sm:px-8 sm:py-16 text-center text-white">
+        <div className="min-w-0 overflow-hidden rounded-3xl bg-gradient-to-br from-neutral-950 via-neutral-900 to-orange-950 px-5 py-12 sm:px-8 sm:py-16 text-center text-white">
           <p className="text-sm text-white/70 number-digits">{item.digits}</p>
           <h1 className="font-display mt-3 number-digits whitespace-nowrap tracking-normal text-[clamp(1.45rem,7vw,3.75rem)]">
             <PatternHighlight pattern={item.pattern} digits={item.digits} highlights={item.highlights} tone="dark" />

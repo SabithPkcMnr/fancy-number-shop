@@ -14,7 +14,7 @@ const fallbackSlides = [
     ctaLabel: "Browse VIP numbers",
     ctaHref: "/numbers",
     image: "",
-    gradient: "from-teal-900 via-cyan-800 to-sky-700",
+    gradient: "from-neutral-950 via-neutral-900 to-orange-950",
     active: true,
   },
 ];
@@ -30,15 +30,20 @@ export function Hero() {
   }, [list.length]);
 
   const slide = list[index] ?? list[0];
+  const gradient =
+    {
+      "from-teal-900 via-cyan-800 to-sky-700": "from-neutral-950 via-neutral-900 to-orange-950",
+      "from-slate-900 via-teal-800 to-emerald-700": "from-neutral-950 via-stone-900 to-amber-950",
+    }[slide.gradient] ?? slide.gradient;
 
   return (
     <section className="relative">
-      <div className={`relative overflow-hidden bg-gradient-to-br ${slide.gradient}`}>
+      <div className={`relative overflow-hidden bg-gradient-to-br ${gradient}`}>
         {slide.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}${slide.image}`} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
         ) : null}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_42%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_42%)]" />
         <div className="absolute -right-10 top-10 hidden lg:block text-white/10 font-extrabold text-[140px] leading-none select-none pointer-events-none">
           786
         </div>

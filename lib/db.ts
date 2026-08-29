@@ -26,7 +26,7 @@ const defaultSlides: Slide[] = [
     ctaLabel: "Browse VIP numbers",
     ctaHref: "/numbers",
     image: "",
-    gradient: "from-teal-900 via-cyan-800 to-sky-700",
+    gradient: "from-neutral-950 via-neutral-900 to-orange-950",
     active: true,
   },
   {
@@ -48,7 +48,7 @@ const defaultSlides: Slide[] = [
     ctaLabel: "How it works",
     ctaHref: "/how-it-works",
     image: "",
-    gradient: "from-slate-900 via-teal-800 to-emerald-700",
+    gradient: "from-neutral-950 via-stone-900 to-amber-950",
     active: true,
   },
 ];

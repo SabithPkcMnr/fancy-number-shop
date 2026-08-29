@@ -34,17 +34,17 @@ export function SearchPanel({ compact, onSearch }: Props) {
       className={
         compact
           ? ""
-          : "relative overflow-hidden rounded-2xl sm:rounded-[28px] border border-teal-100 bg-paper shadow-[0_12px_32px_rgba(8,47,59,0.1)] sm:shadow-[0_24px_60px_rgba(8,47,59,0.14)] p-3.5 sm:p-8"
+          : "relative overflow-hidden rounded-2xl sm:rounded-[28px] border border-amber-100 bg-paper shadow-[0_12px_32px_rgba(17,17,17,0.08)] sm:shadow-[0_24px_60px_rgba(17,17,17,0.12)] p-3.5 sm:p-8"
       }
     >
       {!compact && (
         <>
-          <div className="absolute inset-x-0 top-0 hidden sm:block h-1.5 bg-gradient-to-r from-azure via-teal-400 to-gold" />
+          <div className="absolute inset-x-0 top-0 hidden sm:block h-1.5 bg-gradient-to-r from-azure via-gold to-amber-300" />
           <div className="absolute -right-16 -top-16 hidden sm:block h-40 w-40 rounded-full bg-sky/70 blur-2xl pointer-events-none" />
         </>
       )}
 
-      <div className="relative grid grid-cols-3 gap-2">
+      <div className="relative z-20 grid grid-cols-3 gap-2" role="tablist" aria-label="Search by">
         {(
           [
             ["digits", "Digits", "By digits", Hash],
@@ -55,8 +55,10 @@ export function SearchPanel({ compact, onSearch }: Props) {
           <button
             type="button"
             key={id}
+            role="tab"
+            aria-selected={mode === id}
             onClick={() => setMode(id)}
-            className={`flex h-10 sm:h-14 min-w-0 items-center justify-center rounded-xl sm:rounded-2xl px-1 text-[11px] sm:text-sm font-bold transition-all ${
+            className={`relative z-20 flex h-10 sm:h-14 min-w-0 cursor-pointer items-center justify-center rounded-xl sm:rounded-2xl px-1 text-[11px] sm:text-sm font-bold transition-all ${
               mode === id
                 ? "bg-azure text-white shadow-sm sm:shadow-lg sm:shadow-azure/25"
                 : "bg-sky/90 text-ink hover:bg-sky"
@@ -94,7 +96,7 @@ export function SearchPanel({ compact, onSearch }: Props) {
                 type="button"
                 key={chip}
                 onClick={() => go({ q: chip, anywhere: chip })}
-                className="h-8 px-3 rounded-full border border-teal-100 bg-sky/50 text-[12px] font-semibold text-azure hover:bg-azure hover:text-white transition-colors"
+                className="h-8 px-3 rounded-full border border-amber-100 bg-sky/50 text-[12px] font-semibold text-azure hover:bg-azure hover:text-white transition-colors"
               >
                 {chip}
               </button>
@@ -223,7 +225,7 @@ function SearchBtn({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="h-11 sm:h-12 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-azure sm:bg-gradient-to-r sm:from-azure sm:to-teal-600 text-white text-sm font-bold hover:bg-azure-dark sm:hover:from-azure-dark sm:hover:to-azure transition-colors shrink-0 w-auto min-w-[5.75rem] sm:min-w-36 inline-flex items-center justify-center gap-1.5 self-end shadow-sm sm:shadow-lg sm:shadow-azure/20"
+      className="h-11 sm:h-12 px-4 sm:px-6 rounded-xl sm:rounded-2xl bg-azure sm:bg-gradient-to-r sm:from-azure sm:to-orange-600 text-white text-sm font-bold hover:bg-azure-dark sm:hover:from-azure-dark sm:hover:to-azure transition-colors shrink-0 w-auto min-w-[5.75rem] sm:min-w-36 inline-flex items-center justify-center gap-1.5 self-end shadow-sm sm:shadow-lg sm:shadow-azure/20"
     >
       <Search size={16} />
       Search

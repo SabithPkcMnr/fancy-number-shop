@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
 export const dynamic = "force-static";
@@ -5,7 +7,10 @@ export const alt = "Buy VIP fancy mobile numbers online at Fancy Number Shop, Mu
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function OpenGraphImage() {
+export default async function OpenGraphImage() {
+  const mark = await readFile(join(process.cwd(), "public/images/logo-mark.png"));
+  const src = `data:image/png;base64,${mark.toString("base64")}`;
+
   return new ImageResponse(
     (
       <div
@@ -16,26 +21,25 @@ export default function OpenGraphImage() {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "64px",
-          background: "linear-gradient(135deg, #082f3b 0%, #0f766e 55%, #0b5c56 100%)",
+          background: "linear-gradient(135deg, #111111 0%, #1c1408 55%, #e88700 100%)",
           color: "white",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           <div
             style={{
-              width: 64,
-              height: 64,
+              width: 72,
+              height: 72,
               borderRadius: 16,
               background: "white",
-              color: "#0f766e",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 28,
-              fontWeight: 800,
+              overflow: "hidden",
             }}
           >
-            FN
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={src} width={64} height={62} alt="" />
           </div>
           <div style={{ fontSize: 28, fontWeight: 800 }}>Fancy Number Shop</div>
         </div>

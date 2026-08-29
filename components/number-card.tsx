@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Heart } from "lucide-react";
 import { getNumerology } from "@/lib/numerology";
-import { inr } from "@/lib/site";
+import { formatDisplayDate, inr } from "@/lib/site";
 import { type VipNumber } from "@/lib/catalog";
 import { useStore } from "@/lib/store";
 import { BuyButton } from "./buy-button";
@@ -12,8 +12,10 @@ import { PatternHighlight } from "./pattern-highlight";
 
 export function NumberCard({ item }: { item: VipNumber }) {
   const { toggleWishlist, wishlist } = useStore();
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
   const numerology = getNumerology(item.digits);
-  const wished = wishlist.includes(item.id);
+  const wished = ready && wishlist.includes(item.id);
 
   return (
     <article className="vip-card group relative min-w-0 bg-paper border border-line rounded-2xl p-5 text-center shadow-sm hover:shadow-xl hover:shadow-azure/10 hover:-translate-y-0.5 transition-all">
@@ -32,7 +34,7 @@ export function NumberCard({ item }: { item: VipNumber }) {
 
       {item.prebook && item.prebookDate && (
         <p className="text-[11px] font-semibold uppercase text-azure mb-2">
-          UPC {new Date(item.prebookDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+          UPC {formatDisplayDate(item.prebookDate)}
         </p>
       )}
 

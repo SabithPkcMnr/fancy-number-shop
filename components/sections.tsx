@@ -34,7 +34,7 @@ export function TrustBar() {
 }
 
 const tiles = [
-  { href: "/numbers?category=vvip", title: "VVIP", tone: "from-teal-700 to-cyan-500" },
+  { href: "/numbers?category=vvip", title: "VVIP", tone: "from-neutral-900 to-orange-700" },
   { href: "/numbers?category=mirror", title: "Mirror", tone: "from-indigo-700 to-violet-500" },
   { href: "/numbers?category=penta", title: "Penta", tone: "from-amber-600 to-orange-500" },
   { href: "/numbers?category=lucky-786", title: "786 Special", tone: "from-emerald-700 to-lime-500" },

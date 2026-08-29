@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --ivory: #f3f7fb;
-  --blush: #d9f4ef;
+  --ivory: #faf7f2;
+  --blush: #ffe8c7;
   --paper: #ffffff;
-  --ink: #0f172a;
-  --muted: #5b6478;
-  --line: #dde5ef;
-  --azure: #0f766e;
-  --azure-dark: #0b5c56;
-  --sky: #ccfbf1;
-  --gold: #f59e0b;
+  --ink: #111111;
+  --muted: #5c564d;
+  --line: #ece4d8;
+  --azure: #e88700;
+  --azure-dark: #c46f00;
+  --sky: #fff3e0;
+  --gold: #f99d1c;
   --danger: #dc2626;
-  --navy: #082f3b;
+  --navy: #111111;
 }
 
 @theme inline {
@@ -132,7 +132,7 @@ input:focus,
 select:focus,
 textarea:focus {
   border-color: var(--azure);
-  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
+  box-shadow: 0 0 0 3px rgba(232, 135, 0, 0.18);
 }
 
 .btn-primary {
@@ -197,7 +197,7 @@ textarea:focus {
 }
 
 .digit-hl-gold {
-  color: #d97706;
+  color: #e88700;
 }
 
 .digit-hl-teal {

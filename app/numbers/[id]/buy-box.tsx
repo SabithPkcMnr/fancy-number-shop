@@ -1,14 +1,17 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { VipNumber } from "@/lib/catalog";
-import { inr } from "@/lib/site";
+import { formatDisplayDate, inr } from "@/lib/site";
 import { useStore } from "@/lib/store";
 import { BuyButton } from "@/components/buy-button";
 
 export function BuyBox({ item, meaning }: { item: VipNumber; meaning: string }) {
   const { toggleWishlist, wishlist } = useStore();
-  const wished = wishlist.includes(item.id);
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
+  const wished = ready && wishlist.includes(item.id);
 
   return (
     <div className="card-surface min-w-0 p-5 sm:p-6">
@@ -33,11 +36,7 @@ export function BuyBox({ item, meaning }: { item: VipNumber; meaning: string }) 
         <p className="mt-4 text-sm">
           UPC available{" "}
           <strong>
-            {new Date(item.prebookDate).toLocaleDateString("en-IN", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
+            {formatDisplayDate(item.prebookDate)}
           </strong>
           . Reserve it today.
         </p>

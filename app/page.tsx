@@ -18,7 +18,7 @@ export default function Home() {
     <>
       <Hero />
 
-      <section id="search" className="mx-auto max-w-7xl px-4 sm:px-6 -mt-12 sm:-mt-16 relative z-10">
+      <section id="search" className="mx-auto max-w-7xl px-4 sm:px-6 -mt-12 sm:-mt-16 relative z-20">
         <SearchPanel />
       </section>
 
