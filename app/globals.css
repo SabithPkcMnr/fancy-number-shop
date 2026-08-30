@@ -113,6 +113,46 @@ h3,
   animation: fadeSlide 0.7s ease;
 }
 
+.filter-reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.filter-reveal.open {
+  grid-template-rows: 1fr;
+}
+
+.filter-reveal-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.filter-fields {
+  opacity: 0;
+  transform: translateY(-6px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.filter-reveal.open .filter-fields {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.06s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filter-reveal,
+  .filter-fields {
+    transition: none;
+  }
+
+  .filter-fields {
+    transform: none;
+  }
+}
+
 @keyframes fadeSlide {
   from {
     opacity: 0;

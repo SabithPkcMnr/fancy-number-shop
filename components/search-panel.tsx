@@ -159,7 +159,11 @@ export function SearchPanel({ compact, onSearch, initialQuery }: Props) {
           </div>
 
           <div className="sm:hidden">
-            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-stretch gap-2">
+            <div
+              className={`grid items-stretch transition-[gap] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                fullFilter ? "gap-0" : "gap-2"
+              } grid-cols-[minmax(0,1fr)_auto]`}
+            >
               <input
                 value={form.q ?? ""}
                 onChange={(e) => set("q", e.target.value)}
@@ -169,13 +173,29 @@ export function SearchPanel({ compact, onSearch, initialQuery }: Props) {
                 aria-label="Search digits"
                 className="min-w-0 h-11 rounded-xl border border-line bg-slate-50 px-3 text-sm focus:bg-white"
               />
-              <SearchBtn onClick={goBasic} />
+              <div
+                className={`grid min-w-0 transition-[grid-template-columns,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                  fullFilter ? "grid-cols-[0fr] opacity-0 pointer-events-none" : "grid-cols-[1fr] opacity-100"
+                }`}
+              >
+                <div className="min-w-0 overflow-hidden">
+                  <SearchBtn onClick={goBasic} />
+                </div>
+              </div>
             </div>
             <div
-              className="mt-2 grid grid-cols-3 gap-1 rounded-xl bg-slate-100/90 p-1"
+              className="relative mt-2 grid grid-cols-3 gap-1 rounded-xl bg-slate-100/90 p-1"
               role="radiogroup"
               aria-label="Match digits"
             >
+              <span
+                aria-hidden
+                className="pointer-events-none absolute top-1 bottom-1 left-1 rounded-lg bg-azure shadow-sm transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+                style={{
+                  width: "calc((100% - 1rem) / 3)",
+                  transform: `translateX(calc(${digitPlaces.findIndex(([id]) => id === digitPlace)} * (100% + 0.25rem)))`,
+                }}
+              />
               {digitPlaces.map(([id, label]) => (
                 <button
                   type="button"
@@ -183,8 +203,8 @@ export function SearchPanel({ compact, onSearch, initialQuery }: Props) {
                   role="radio"
                   aria-checked={digitPlace === id}
                   onClick={() => setDigitPlace(id)}
-                  className={`h-8 rounded-lg px-0.5 text-[10px] font-semibold whitespace-nowrap transition-colors ${
-                    digitPlace === id ? "bg-azure text-white shadow-sm" : "text-muted"
+                  className={`relative z-10 h-8 rounded-lg px-0.5 text-[10px] font-semibold whitespace-nowrap transition-colors duration-200 ${
+                    digitPlace === id ? "text-white" : "text-muted"
                   }`}
                 >
                   {label}
@@ -196,23 +216,30 @@ export function SearchPanel({ compact, onSearch, initialQuery }: Props) {
                 type="button"
                 aria-expanded={fullFilter}
                 onClick={() => setFullFilter((open) => !open)}
-                className="inline-flex items-center justify-center gap-1 py-1.5 text-xs font-semibold text-azure"
+                className="inline-flex items-center justify-center gap-1 py-1.5 text-xs font-semibold text-azure active:scale-[0.98] transition-transform"
               >
                 Full number filter
-                <ChevronDown size={14} className={`transition-transform ${fullFilter ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  size={14}
+                  className={`transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                    fullFilter ? "rotate-180" : ""
+                  }`}
+                />
               </button>
             </div>
-            {fullFilter && (
-              <div className="mt-1 grid grid-cols-2 gap-2">
-                <Field label="Must contain" hint="1,5,9" value={form.must ?? ""} onChange={(v) => set("must", v)} />
-                <Field label="Not contain" hint="2,4,8" value={form.not ?? ""} onChange={(v) => set("not", v)} />
-                <Field label="Sum" hint="single 5" value={form.sum ?? ""} onChange={(v) => set("sum", v)} />
-                <Field label="Total" hint="41" value={form.total ?? ""} onChange={(v) => set("total", v)} />
-                <div className="col-span-2">
-                  <SearchBtn onClick={goBasic} />
+            <div className={`filter-reveal ${fullFilter ? "open" : ""}`} aria-hidden={!fullFilter}>
+              <div className="filter-reveal-inner" inert={fullFilter ? undefined : true}>
+                <div className="filter-fields mt-1 grid grid-cols-2 gap-2 pb-0.5">
+                  <Field label="Must contain" hint="1,5,9" value={form.must ?? ""} onChange={(v) => set("must", v)} />
+                  <Field label="Not contain" hint="2,4,8" value={form.not ?? ""} onChange={(v) => set("not", v)} />
+                  <Field label="Sum" hint="single 5" value={form.sum ?? ""} onChange={(v) => set("sum", v)} />
+                  <Field label="Total" hint="41" value={form.total ?? ""} onChange={(v) => set("total", v)} />
+                  <div className="col-span-2">
+                    <SearchBtn onClick={goBasic} fullWidth />
+                  </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
 
           <div className="hidden sm:block">
@@ -299,16 +326,20 @@ function Field({
   );
 }
 
-function SearchBtn({ onClick }: { onClick: () => void }) {
+function SearchBtn({ onClick, fullWidth }: { onClick: () => void; fullWidth?: boolean }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label="Search"
-      className="h-11 sm:h-12 w-11 sm:w-auto px-0 sm:px-6 rounded-xl sm:rounded-2xl bg-azure sm:bg-gradient-to-r sm:from-azure sm:to-orange-600 text-white text-sm font-bold hover:bg-azure-dark sm:hover:from-azure-dark sm:hover:to-azure transition-colors shrink-0 min-w-11 sm:min-w-36 inline-flex items-center justify-center gap-1.5 self-end shadow-sm sm:shadow-lg sm:shadow-azure/20"
+      className={
+        fullWidth
+          ? "h-11 w-full rounded-xl bg-azure text-white text-sm font-bold hover:bg-azure-dark transition-colors inline-flex items-center justify-center gap-1.5 shadow-sm"
+          : "h-11 sm:h-12 w-11 sm:w-auto px-0 sm:px-6 rounded-xl sm:rounded-2xl bg-azure sm:bg-gradient-to-r sm:from-azure sm:to-orange-600 text-white text-sm font-bold hover:bg-azure-dark sm:hover:from-azure-dark sm:hover:to-azure transition-colors shrink-0 min-w-11 sm:min-w-36 inline-flex items-center justify-center gap-1.5 self-end shadow-sm sm:shadow-lg sm:shadow-azure/20"
+      }
     >
       <Search size={16} />
-      <span className="hidden sm:inline">Search</span>
+      <span className={fullWidth ? "" : "hidden sm:inline"}>Search</span>
     </button>
   );
 }
