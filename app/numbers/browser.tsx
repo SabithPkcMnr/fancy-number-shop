@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { NumberGrid } from "@/components/number-card";
+import { SearchPanel } from "@/components/search-panel";
 import { categories } from "@/lib/catalog";
 import { searchNumbers, type SearchQuery } from "@/lib/search";
 import { useStore } from "@/lib/store";
@@ -30,10 +31,15 @@ export default function NumbersBrowser() {
       <p className="text-xs font-bold tracking-[0.22em] uppercase text-azure">The collection</p>
       <h1 className="font-display text-3xl sm:text-5xl mt-2">VIP Numbers</h1>
       <p className="text-muted mt-3 max-w-2xl text-sm sm:text-base">
-        {results.length} numbers live now. Filter by sum, price, pattern, or the categories collectors actually ask for.
+        {results.length} numbers live now. Start with a basic search, then open the full number filter when you need start, end, or digit rules.
       </p>
 
-      <div className="mt-6 sm:mt-8 flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
+      <div className="mt-5 sm:mt-8">
+        <SearchPanel initialQuery={query} />
+      </div>
+
+      <div className="relative mt-6 sm:mt-8">
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
         <button
           onClick={() => set("category", "")}
           className={`shrink-0 h-9 px-3 rounded-full text-xs font-semibold ${
@@ -53,32 +59,24 @@ export default function NumbersBrowser() {
             {cat.name.replace(" Number", "")}
           </button>
         ))}
+          <span className="w-2 shrink-0 sm:hidden" aria-hidden />
+        </div>
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-ivory sm:hidden" />
       </div>
 
-      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div className="mt-4">
         <select
           value={query.sort ?? "featured"}
           onChange={(e) => set("sort", e.target.value)}
-          className="h-11 rounded-xl border border-line px-3 bg-white text-sm"
+          className="h-11 w-full sm:w-56 rounded-xl border border-line px-3 bg-white text-sm"
+          aria-label="Sort numbers"
         >
           <option value="featured">Featured</option>
           <option value="price-asc">Price · low to high</option>
           <option value="price-desc">Price · high to low</option>
           <option value="discount">Highest discount</option>
         </select>
-        <input placeholder="Min ₹" defaultValue={query.min ?? ""} onBlur={(e) => set("min", e.target.value)} className="h-11 rounded-xl border border-line px-3 text-sm" />
-        <input placeholder="Max ₹" defaultValue={query.max ?? ""} onBlur={(e) => set("max", e.target.value)} className="h-11 rounded-xl border border-line px-3 text-sm" />
-        <input placeholder="Sum" defaultValue={query.sum ?? ""} onBlur={(e) => set("sum", e.target.value)} className="h-11 rounded-xl border border-line px-3 text-sm" />
       </div>
-
-      <details className="mt-3 lg:hidden">
-        <summary className="text-sm font-semibold text-azure cursor-pointer py-2">More filters</summary>
-        <div className="grid grid-cols-2 gap-2 pb-3">
-          <input placeholder="Total" defaultValue={query.total ?? ""} onBlur={(e) => set("total", e.target.value)} className="h-11 rounded-xl border border-line px-3 text-sm" />
-          <input placeholder="Must contain" defaultValue={query.must ?? ""} onBlur={(e) => set("must", e.target.value)} className="h-11 rounded-xl border border-line px-3 text-sm" />
-          <input placeholder="Not contain · 2,4,8" defaultValue={query.not ?? ""} onBlur={(e) => set("not", e.target.value)} className="col-span-2 h-11 rounded-xl border border-line px-3 text-sm" />
-        </div>
-      </details>
 
       <div className="mt-6 sm:mt-8 grid lg:grid-cols-[240px_1fr] gap-8">
         <aside className="hidden lg:block space-y-8">

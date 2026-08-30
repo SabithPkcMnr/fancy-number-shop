@@ -23,8 +23,11 @@ export default function Home() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-6 sm:mt-16">
-        <HeaderRow title="VVIP Numbers" href="/numbers?featured=1" />
+        <HeaderRow title="VVIP Numbers" href="/numbers" hideLinkOnMobile />
         <LiveNumberGrid preset="featured" limit={8} />
+        <Link href="/numbers" className="md:hidden mt-4 btn-primary w-full h-12 text-base">
+          View More
+        </Link>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 mt-16">
@@ -83,11 +86,22 @@ export default function Home() {
   );
 }
 
-function HeaderRow({ title, href }: { title: string; href: string }) {
+function HeaderRow({
+  title,
+  href,
+  hideLinkOnMobile,
+}: {
+  title: string;
+  href: string;
+  hideLinkOnMobile?: boolean;
+}) {
   return (
     <div className="flex items-center justify-between gap-3 mb-4 sm:mb-8">
       <h2 className="font-display text-xl sm:text-4xl leading-none">{title}</h2>
-      <Link href={href} className="shrink-0 text-sm font-semibold text-azure">
+      <Link
+        href={href}
+        className={`shrink-0 text-sm font-semibold text-azure ${hideLinkOnMobile ? "hidden md:inline" : ""}`}
+      >
         View more
       </Link>
     </div>

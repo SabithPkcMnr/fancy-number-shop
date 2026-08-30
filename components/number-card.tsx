@@ -18,7 +18,7 @@ export function NumberCard({ item }: { item: VipNumber }) {
   const wished = ready && wishlist.includes(item.id);
 
   return (
-    <article className="vip-card group relative min-w-0 bg-paper border border-line rounded-2xl p-5 text-center shadow-sm hover:shadow-xl hover:shadow-azure/10 hover:-translate-y-0.5 transition-all">
+    <article className="vip-card group relative min-w-0 overflow-x-clip bg-paper border border-line rounded-2xl p-5 text-center shadow-sm hover:shadow-xl hover:shadow-azure/10 hover:-translate-y-0.5 transition-all">
       {item.discount > 0 && (
         <span className="absolute left-3 top-3 bg-danger text-white text-[11px] font-bold px-2 py-0.5 rounded-md">
           {item.discount}%
@@ -73,7 +73,7 @@ export function NumberGrid({ items }: { items: VipNumber[] }) {
     );
   }
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 min-w-0">
       {items.map((item) => (
         <NumberCard key={item.id} item={item} />
       ))}

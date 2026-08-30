@@ -44,7 +44,7 @@ export function Header() {
             </button>
 
             <Link href="/" className="flex items-center min-w-0 flex-1" aria-label="FancyNumberShop home">
-              <BrandLogo className="h-9 w-auto max-w-[min(220px,calc(100vw-9.5rem))] object-contain object-left sm:max-w-[230px] lg:h-10 lg:max-w-[250px]" />
+              <BrandLogo className="h-9 w-auto max-w-full object-contain object-left sm:max-w-[230px] lg:h-10 lg:max-w-[250px]" />
             </Link>
 
             <nav className="hidden xl:flex items-center gap-5 text-[13px] font-semibold">
