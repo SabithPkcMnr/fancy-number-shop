@@ -16,6 +16,7 @@ export default function AdminSettingsPage() {
         razorpayWebhookSecret: data.settings.razorpayWebhookSecret ?? "",
         onesignalAppId: data.settings.onesignalAppId ?? "",
         onesignalRestApiKey: data.settings.onesignalRestApiKey ?? "",
+        maintenanceMode: Boolean(data.settings.maintenanceMode),
       });
     }
   }, [data]);
@@ -61,7 +62,27 @@ export default function AdminSettingsPage() {
             <option value="razorpay">Razorpay</option>
           </select>
         </label>
-        <Field label="Ticker (comma separated)" value={form.ticker.join(", ")} onChange={(v) => set("ticker", v.split(",").map((part) => part.trim()).filter(Boolean))} />
+        <label className="sm:col-span-2 text-sm">
+          Marquee ticker (one line per message)
+          <textarea
+            value={form.ticker.join("\n")}
+            onChange={(e) => set("ticker", e.target.value.split("\n").map((part) => part.trim()).filter(Boolean))}
+            className="mt-1 w-full h-28 rounded-xl border border-line p-3"
+          />
+        </label>
+        <label className="sm:col-span-2 flex items-center justify-between gap-3 rounded-2xl border border-line px-4 py-3 bg-slate-50">
+          <span>
+            <span className="block text-sm font-semibold">Public shop</span>
+            <span className="text-xs text-muted">Turn off to show a maintenance page. Admin stays available.</span>
+          </span>
+          <button
+            type="button"
+            className={`h-10 px-4 rounded-xl text-sm font-semibold ${form.maintenanceMode ? "bg-amber-500 text-navy" : "btn-primary"}`}
+            onClick={() => set("maintenanceMode", !form.maintenanceMode)}
+          >
+            {form.maintenanceMode ? "Maintenance on" : "Shop live"}
+          </button>
+        </label>
         <Field label="Razorpay Key ID" value={form.razorpayKeyId} onChange={(v) => set("razorpayKeyId", v)} />
         <Field label="Razorpay Key Secret" value={form.razorpayKeySecret} onChange={(v) => set("razorpayKeySecret", v)} type="password" />
         <Field label="Razorpay webhook secret" value={form.razorpayWebhookSecret} onChange={(v) => set("razorpayWebhookSecret", v)} type="password" />

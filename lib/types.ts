@@ -1,5 +1,6 @@
 export type CheckoutMode = "razorpay" | "whatsapp";
 export type NumberStatus = "live" | "sold" | "hidden";
+export type NumberVisibility = "public" | "private";
 export type OrderStatus = "pending" | "paid" | "processing" | "completed" | "cancelled";
 export type InquiryStatus = "new" | "open" | "closed";
 
@@ -46,7 +47,21 @@ export type VipNumber = {
   familyGroup?: string;
   checkout: CheckoutMode;
   status: NumberStatus;
+  visibility?: NumberVisibility;
+  sellerId?: string;
   highlights?: DigitHighlight[];
+};
+
+export type Seller = {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  city: string;
+  notes: string;
+  isOwn: boolean;
+  active: boolean;
+  createdAt: string;
 };
 
 export type Slide = {
@@ -140,11 +155,13 @@ export type SiteSettings = {
   adminUser: string;
   adminPassword: string;
   defaultCheckout: CheckoutMode;
+  maintenanceMode: boolean;
 };
 
 export type AppData = {
   settings: SiteSettings;
   numbers: VipNumber[];
+  sellers: Seller[];
   slides: Slide[];
   menus: MenuItem[];
   users: RegisteredUser[];

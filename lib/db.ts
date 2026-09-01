@@ -9,7 +9,7 @@ const storePath = path.join(dataDir, "store.json");
 let memory: AppData | null = null;
 let writeQueue = Promise.resolve();
 let loadedRev = 0;
-const STORE_REV = 3;
+const STORE_REV = 4;
 
 function withLock<T>(fn: () => Promise<T>) {
   const run = writeQueue.then(fn, fn);
@@ -98,10 +98,4 @@ export function similarFrom(list: VipNumber[], item: VipNumber, limit = 8) {
     .map((entry) => entry.other);
 }
 
-export function nextId(prefix: string) {
-  return `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
-}
-
-export function nextOrderId() {
-  return `FNS${Math.floor(10000 + Math.random() * 90000)}`;
-}
+export { nextId, nextOrderId } from "./ids";

@@ -13,9 +13,13 @@ export default function AdminHomePage() {
   const revenue = data.orders.filter((order) => order.status === "paid" || order.status === "completed").reduce((sum, order) => sum + order.total, 0);
   const pending = data.orders.filter((order) => order.status === "pending" || order.status === "processing").length;
 
+  const own = data.numbers.filter((item) => (item.sellerId || "own") === "own").length;
+  const partner = data.numbers.length - own;
   const cards = [
     { label: "Live numbers", value: live, href: "/admin/numbers" },
     { label: "Sold numbers", value: sold, href: "/admin/numbers" },
+    { label: "In-house numbers", value: own, href: "/admin/numbers?seller=own" },
+    { label: "Partner numbers", value: partner, href: "/admin/sellers" },
     { label: "Orders & bookings", value: data.orders.length, href: "/admin/orders" },
     { label: "Revenue", value: inr(revenue), href: "/admin/orders" },
     { label: "Registered users", value: data.users.length, href: "/admin/users" },
@@ -27,6 +31,7 @@ export default function AdminHomePage() {
       <h1 className="font-display text-3xl">Dashboard</h1>
       <p className="text-muted mt-1">
         {pending} orders need action. Website: fancynumbershop.com
+        {data.settings.maintenanceMode ? " · Shop is in maintenance" : ""}
       </p>
       <div className="mt-6 grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
         {cards.map((card) => (

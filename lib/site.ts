@@ -35,6 +35,7 @@ export const defaultSettings: SiteSettings = {
   adminPassword: "FancyShop@2026",
   defaultCheckout: "whatsapp",
   trustLine: "Secure UPC in 60 minutes · All India",
+  maintenanceMode: false,
 };
 
 export const site = {

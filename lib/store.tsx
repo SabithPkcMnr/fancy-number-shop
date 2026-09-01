@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { usePathname } from "next/navigation";
 import { publicFromStore } from "./app-data";
 import { catalog, getNumber as seedNumber, type VipNumber } from "./catalog";
 import { isStaticHost } from "./paths";
@@ -85,6 +86,7 @@ function write(next: Persisted) {
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const state = useSyncExternalStore(subscribe, () => memory, () => empty);
   const hydrated = useSyncExternalStore(subscribe, () => true, () => false);
+  const path = usePathname();
   const [publicData, setPublicData] = useState<PublicPayload>(fallbackPublic);
 
   useEffect(() => {
@@ -107,7 +109,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [path]);
 
   const findNumber = useCallback(
     (id: string) => publicData.numbers.find((item) => item.id === id) ?? seedNumber(id),

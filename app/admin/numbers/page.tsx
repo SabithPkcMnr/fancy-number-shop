@@ -1,12 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { categories } from "@/lib/catalog";
 import { formatPattern, inr } from "@/lib/site";
-import type { CategorySlug, CheckoutMode, DigitHighlight, NumberStatus, VipNumber } from "@/lib/types";
+import type { CategorySlug, CheckoutMode, DigitHighlight, NumberStatus, NumberVisibility, VipNumber } from "@/lib/types";
 import { useAdminData } from "@/components/admin/admin-data";
+import { BulkNumberUpload } from "@/components/admin/bulk-upload";
 import { HighlightEditor } from "@/components/admin/highlight-editor";
 import { PatternHighlight } from "@/components/pattern-highlight";
+import { OWN_SELLER_ID, sellerById } from "@/lib/sellers";
 
 const emptyForm = {
   digits: "",
@@ -16,6 +19,8 @@ const emptyForm = {
   category: "unique" as CategorySlug,
   checkout: "whatsapp" as CheckoutMode,
   status: "live" as NumberStatus,
+  visibility: "public" as NumberVisibility,
+  sellerId: OWN_SELLER_ID,
   featured: false,
   offer: false,
   prebook: false,
@@ -24,20 +29,39 @@ const emptyForm = {
 };
 
 export default function AdminNumbersPage() {
+  return (
+    <Suspense fallback={<p className="text-muted">Loading numbers…</p>}>
+      <AdminNumbersInner />
+    </Suspense>
+  );
+}
+
+function AdminNumbersInner() {
   const { data, save } = useAdminData();
+  const search = useSearchParams();
   const [q, setQ] = useState("");
+  const [sellerFilter, setSellerFilter] = useState(search.get("seller") || "all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [visibilityFilter, setVisibilityFilter] = useState("all");
   const [editing, setEditing] = useState<string | "new" | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [note, setNote] = useState("");
 
   const numbers = data?.numbers ?? [];
+  const sellers = data?.sellers ?? [];
   const filtered = useMemo(() => {
     const needle = q.replace(/\D/g, "");
-    return numbers.filter((item) => !needle || item.digits.includes(needle) || item.pattern.includes(q));
-  }, [numbers, q]);
+    return numbers.filter((item) => {
+      if (needle && !item.digits.includes(needle) && !item.pattern.includes(q)) return false;
+      if (sellerFilter !== "all" && (item.sellerId || OWN_SELLER_ID) !== sellerFilter) return false;
+      if (statusFilter !== "all" && item.status !== statusFilter) return false;
+      if (visibilityFilter !== "all" && (item.visibility || "public") !== visibilityFilter) return false;
+      return true;
+    });
+  }, [numbers, q, sellerFilter, statusFilter, visibilityFilter]);
 
   function openNew() {
-    setForm(emptyForm);
+    setForm({ ...emptyForm, sellerId: sellerFilter !== "all" ? sellerFilter : OWN_SELLER_ID });
     setEditing("new");
     setNote("");
   }
@@ -51,6 +75,8 @@ export default function AdminNumbersPage() {
       category: item.category,
       checkout: item.checkout,
       status: item.status,
+      visibility: item.visibility === "private" ? "private" : "public",
+      sellerId: item.sellerId || OWN_SELLER_ID,
       featured: Boolean(item.featured),
       offer: Boolean(item.offer),
       prebook: Boolean(item.prebook),
@@ -87,6 +113,8 @@ export default function AdminNumbersPage() {
       categories: Array.from(new Set([form.category, ...(existing?.categories ?? [])])),
       checkout: form.checkout,
       status: form.status,
+      visibility: form.visibility,
+      sellerId: form.sellerId,
       featured: form.featured,
       offer: form.offer,
       prebook: form.prebook,
@@ -108,19 +136,55 @@ export default function AdminNumbersPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl">Numbers</h1>
-          <p className="text-muted text-sm mt-1">{numbers.length} in catalogue. Tap digits to highlight the special part.</p>
+          <p className="text-muted text-sm mt-1">
+            {filtered.length} shown · {numbers.length} in catalogue. Seller tags stay in admin only.
+          </p>
         </div>
         <button onClick={openNew} className="btn-primary">
           Add number
         </button>
       </div>
-      <input
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        placeholder="Search digits"
-        className="mt-5 w-full h-11 rounded-xl border border-line px-3"
-        inputMode="numeric"
+
+      <div className="mt-5 grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search digits"
+          className="h-11 rounded-xl border border-line px-3"
+          inputMode="numeric"
+        />
+        <select value={sellerFilter} onChange={(e) => setSellerFilter(e.target.value)} className="h-11 rounded-xl border border-line px-3 bg-white">
+          <option value="all">All sellers</option>
+          {sellers.map((seller) => (
+            <option key={seller.id} value={seller.id}>
+              {seller.name}
+              {seller.isOwn ? " (in-house)" : ""}
+            </option>
+          ))}
+        </select>
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-11 rounded-xl border border-line px-3 bg-white">
+          <option value="all">All statuses</option>
+          <option value="live">Live</option>
+          <option value="sold">Sold</option>
+          <option value="hidden">Hidden</option>
+        </select>
+        <select value={visibilityFilter} onChange={(e) => setVisibilityFilter(e.target.value)} className="h-11 rounded-xl border border-line px-3 bg-white">
+          <option value="all">Public & private</option>
+          <option value="public">Public</option>
+          <option value="private">Private</option>
+        </select>
+      </div>
+
+      <BulkNumberUpload
+        numbers={numbers}
+        sellers={sellers}
+        onApply={async (nextNumbers, nextSellers) => {
+          const ok = await save({ numbers: nextNumbers, sellers: nextSellers });
+          setNote(ok ? "Bulk catalogue published." : "Save failed.");
+          return ok;
+        }}
       />
+
       {note && <p className="mt-3 text-sm text-azure">{note}</p>}
 
       {editing && (
@@ -144,6 +208,17 @@ export default function AdminNumbersPage() {
             </select>
           </label>
           <label className="text-sm">
+            Seller
+            <select value={form.sellerId} onChange={(e) => setForm({ ...form, sellerId: e.target.value })} className="mt-1 w-full h-11 rounded-xl border border-line px-3 bg-white">
+              {sellers.map((seller) => (
+                <option key={seller.id} value={seller.id}>
+                  {seller.name}
+                  {seller.isOwn ? " (in-house)" : ""}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="text-sm">
             Buy button
             <select value={form.checkout} onChange={(e) => setForm({ ...form, checkout: e.target.value as CheckoutMode })} className="mt-1 w-full h-11 rounded-xl border border-line px-3 bg-white">
               <option value="whatsapp">WhatsApp chat</option>
@@ -156,6 +231,13 @@ export default function AdminNumbersPage() {
               <option value="live">Live</option>
               <option value="sold">Sold</option>
               <option value="hidden">Hidden</option>
+            </select>
+          </label>
+          <label className="text-sm">
+            Visibility
+            <select value={form.visibility} onChange={(e) => setForm({ ...form, visibility: e.target.value as NumberVisibility })} className="mt-1 w-full h-11 rounded-xl border border-line px-3 bg-white">
+              <option value="public">Public on shop</option>
+              <option value="private">Private (admin only)</option>
             </select>
           </label>
           <Field label="Prebook date" value={form.prebookDate} onChange={(v) => setForm({ ...form, prebookDate: v })} />
@@ -186,48 +268,51 @@ export default function AdminNumbersPage() {
       )}
 
       <div className="mt-6 space-y-3">
-        {filtered.slice(0, 80).map((item) => (
-          <article key={item.id} className="card-surface p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="font-display text-xl number-digits leading-tight">
-                  <PatternHighlight pattern={item.pattern} digits={item.digits} highlights={item.highlights} />
-                </p>
-                <p className="text-xs text-muted mt-1">
-                  {item.category} · {item.status}
-                </p>
+        {filtered.slice(0, 80).map((item) => {
+          const seller = sellerById(sellers, item.sellerId);
+          return (
+            <article key={item.id} className="card-surface p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-display text-xl number-digits leading-tight">
+                    <PatternHighlight pattern={item.pattern} digits={item.digits} highlights={item.highlights} />
+                  </p>
+                  <p className="text-xs text-muted mt-1">
+                    {seller.name} · {item.visibility ?? "public"} · {item.category} · {item.status}
+                  </p>
+                </div>
+                <p className="text-sm font-semibold text-azure shrink-0">{inr(item.price)}</p>
               </div>
-              <p className="text-sm font-semibold text-azure shrink-0">{inr(item.price)}</p>
-            </div>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <select
-                value={item.checkout}
-                onChange={(e) => save({ numbers: numbers.map((n) => (n.id === item.id ? { ...n, checkout: e.target.value as CheckoutMode } : n)) })}
-                className="h-10 rounded-lg border border-line px-2 bg-white text-sm"
-              >
-                <option value="whatsapp">WhatsApp</option>
-                <option value="razorpay">Razorpay</option>
-              </select>
-              <select
-                value={item.status}
-                onChange={(e) => save({ numbers: numbers.map((n) => (n.id === item.id ? { ...n, status: e.target.value as NumberStatus } : n)) })}
-                className="h-10 rounded-lg border border-line px-2 bg-white text-sm capitalize"
-              >
-                <option value="live">Live</option>
-                <option value="sold">Sold</option>
-                <option value="hidden">Hidden</option>
-              </select>
-            </div>
-            <div className="mt-3 flex gap-2">
-              <button onClick={() => openEdit(item)} className="flex-1 h-10 rounded-xl border border-line text-sm font-semibold text-azure">
-                Edit
-              </button>
-              <button onClick={() => persist(numbers.filter((n) => n.id !== item.id))} className="flex-1 h-10 rounded-xl border border-line text-sm font-semibold text-danger">
-                Delete
-              </button>
-            </div>
-          </article>
-        ))}
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <select
+                  value={item.checkout}
+                  onChange={(e) => save({ numbers: numbers.map((n) => (n.id === item.id ? { ...n, checkout: e.target.value as CheckoutMode } : n)) })}
+                  className="h-10 rounded-lg border border-line px-2 bg-white text-sm"
+                >
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="razorpay">Razorpay</option>
+                </select>
+                <select
+                  value={item.status}
+                  onChange={(e) => save({ numbers: numbers.map((n) => (n.id === item.id ? { ...n, status: e.target.value as NumberStatus } : n)) })}
+                  className="h-10 rounded-lg border border-line px-2 bg-white text-sm capitalize"
+                >
+                  <option value="live">Live</option>
+                  <option value="sold">Sold</option>
+                  <option value="hidden">Hidden</option>
+                </select>
+              </div>
+              <div className="mt-3 flex gap-2">
+                <button onClick={() => openEdit(item)} className="flex-1 h-10 rounded-xl border border-line text-sm font-semibold text-azure">
+                  Edit
+                </button>
+                <button onClick={() => persist(numbers.filter((n) => n.id !== item.id))} className="flex-1 h-10 rounded-xl border border-line text-sm font-semibold text-danger">
+                  Delete
+                </button>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </div>
   );

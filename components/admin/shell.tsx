@@ -11,16 +11,19 @@ import {
   ShoppingBag,
   MessageSquare,
   Settings,
+  Store,
   ExternalLink,
   LogOut,
 } from "lucide-react";
 import { logoutAdmin } from "@/lib/admin-client";
 import { samePath } from "@/lib/paths";
+import { useAdminData } from "./admin-data";
 import { AdminPush } from "./push";
 
 const links = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/numbers", label: "Numbers", icon: Hash },
+  { href: "/admin/sellers", label: "Sellers", icon: Store },
   { href: "/admin/slides", label: "Slides", icon: Images },
   { href: "/admin/menus", label: "Menus", icon: Menu },
   { href: "/admin/users", label: "Users", icon: Users },
@@ -32,13 +35,30 @@ const links = [
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const router = useRouter();
+  const { data, save } = useAdminData();
+  const maintenance = Boolean(data?.settings.maintenanceMode);
+
+  async function toggleSite() {
+    if (!data) return;
+    await save({ settings: { ...data.settings, maintenanceMode: !maintenance } });
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900">
       <aside className="fixed inset-y-0 left-0 w-64 bg-navy text-white p-5 hidden md:flex flex-col">
         <p className="font-extrabold text-lg">FNS Admin</p>
         <p className="text-xs text-white/50 mt-1">Fancy Number Shop</p>
-        <nav className="mt-8 space-y-1 flex-1">
+        <button
+          type="button"
+          onClick={toggleSite}
+          className={`mt-5 rounded-xl px-3 py-2.5 text-left text-sm font-semibold ${
+            maintenance ? "bg-amber-500 text-navy" : "bg-white/10 text-white"
+          }`}
+        >
+          Shop {maintenance ? "is off" : "is live"}
+          <span className="block text-xs font-medium opacity-80 mt-0.5">{maintenance ? "Tap to open for public" : "Tap to turn on maintenance"}</span>
+        </button>
+        <nav className="mt-6 space-y-1 flex-1">
           {links.map((item) => {
             const active = samePath(path, item.href);
             return (
@@ -75,6 +95,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <header className="md:hidden sticky top-0 z-20 bg-navy text-white px-4 py-3 flex items-center justify-between gap-2">
           <p className="font-bold">FNS Admin</p>
           <div className="flex items-center gap-2">
+            <button type="button" onClick={toggleSite} className={`text-xs font-semibold rounded-full px-3 py-1.5 ${maintenance ? "bg-amber-500 text-navy" : "bg-white/10"}`}>
+              {maintenance ? "Shop off" : "Shop live"}
+            </button>
             <AdminPush />
             <Link href="/" className="text-xs">
               View site

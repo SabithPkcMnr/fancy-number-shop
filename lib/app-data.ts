@@ -1,5 +1,6 @@
 import { catalog } from "./catalog";
 import { autoHighlights } from "./highlights";
+import { defaultSellers, mergeSellers, OWN_SELLER_ID } from "./sellers";
 import { defaultSettings, fallbackNav, publicSettings } from "./site";
 import type { AppData, Inquiry, MenuItem, Order, PublicPayload, RegisteredUser, Slide, VipNumber } from "./types";
 
@@ -131,6 +132,7 @@ export function seedData(): AppData {
   return {
     settings: defaultSettings,
     numbers: catalog,
+    sellers: defaultSellers(),
     slides: defaultSlides,
     menus: defaultMenus(),
     users: seedUsers(),
@@ -145,10 +147,15 @@ function mergeNumbers(raw: VipNumber[] | undefined, seedNumbers: VipNumber[]) {
   const extra = seedNumbers.filter((item) => !have.has(item.id));
   const seedMap = new Map(seedNumbers.map((item) => [item.id, item]));
   return [...extra, ...list].map((item) => {
-    if (item.highlights?.some((range) => range.color)) return item;
+    const next: VipNumber = {
+      ...item,
+      sellerId: item.sellerId || OWN_SELLER_ID,
+      visibility: item.visibility === "private" ? "private" : "public",
+    };
+    if (next.highlights?.some((range) => range.color)) return next;
     const seeded = seedMap.get(item.id);
-    if (seeded && "highlights" in seeded) return { ...item, highlights: seeded.highlights ?? [] };
-    return { ...item, highlights: autoHighlights(item.digits) };
+    if (seeded && "highlights" in seeded) return { ...next, highlights: seeded.highlights ?? [] };
+    return { ...next, highlights: autoHighlights(item.digits) };
   });
 }
 
@@ -162,8 +169,10 @@ export function mergeStore(raw: Partial<AppData>): AppData {
       onesignalAppId: raw.settings?.onesignalAppId ?? seed.settings.onesignalAppId,
       onesignalRestApiKey: raw.settings?.onesignalRestApiKey ?? seed.settings.onesignalRestApiKey,
       razorpayWebhookSecret: raw.settings?.razorpayWebhookSecret ?? seed.settings.razorpayWebhookSecret,
+      maintenanceMode: Boolean(raw.settings?.maintenanceMode),
     },
     numbers: mergeNumbers(raw.numbers, seed.numbers),
+    sellers: mergeSellers(raw.sellers),
     slides: raw.slides?.length ? raw.slides : seed.slides,
     menus: raw.menus?.length ? raw.menus : seed.menus,
     users: raw.users ?? seed.users,
@@ -175,8 +184,10 @@ export function mergeStore(raw: Partial<AppData>): AppData {
 export function publicFromStore(store: AppData): PublicPayload {
   return {
     settings: publicSettings(store.settings),
-    numbers: store.numbers.filter((item) => item.status === "live"),
-    slides: store.slides.filter((slide) => slide.active),
+    numbers: store.numbers
+      .filter((item) => item.status === "live" && item.visibility !== "private")
+      .map(({ sellerId: _seller, ...item }) => item),
+    slides: store.settings.maintenanceMode ? [] : store.slides.filter((slide) => slide.active),
     menus: store.menus.filter((item) => item.visible).sort((a, b) => a.order - b.order),
   };
 }
