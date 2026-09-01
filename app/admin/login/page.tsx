@@ -17,20 +17,26 @@ export default function AdminLoginPage() {
           setBusy(true);
           setError("");
           const form = new FormData(e.currentTarget);
-          const res = await fetch("/api/admin/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              username: form.get("username"),
-              password: form.get("password"),
-            }),
-          });
-          setBusy(false);
-          if (!res.ok) {
-            setError("Invalid username or password.");
-            return;
+          try {
+            const res = await fetch("/api/admin/login", {
+              method: "POST",
+              credentials: "same-origin",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                username: form.get("username"),
+                password: form.get("password"),
+              }),
+            });
+            if (!res.ok) {
+              setError("Invalid username or password.");
+              return;
+            }
+            router.push("/admin");
+          } catch {
+            setError("Could not reach the server. Check that it is running, then try again.");
+          } finally {
+            setBusy(false);
           }
-          router.push("/admin");
         }}
       >
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-azure">Fancy Number Shop</p>

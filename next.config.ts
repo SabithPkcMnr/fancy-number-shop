@@ -1,11 +1,24 @@
 import type { NextConfig } from "next";
+import os from "os";
 import path from "path";
 
 const isGithubPages = process.env.GITHUB_PAGES === "true";
 const basePath = isGithubPages ? "/fancy-number-shop" : "";
 
+function localDevOrigins() {
+  const hosts = new Set(["127.0.0.1", "localhost"]);
+  for (const addrs of Object.values(os.networkInterfaces())) {
+    for (const addr of addrs ?? []) {
+      if ((addr.family === "IPv4" || addr.family === 4) && addr.address) {
+        hosts.add(addr.address);
+      }
+    }
+  }
+  return [...hosts];
+}
+
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["127.0.0.1", "localhost"],
+  allowedDevOrigins: localDevOrigins(),
   turbopack: {
     root: path.join(__dirname),
   },

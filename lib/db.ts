@@ -223,8 +223,12 @@ export async function getStore(): Promise<AppData> {
 async function persist(next: AppData) {
   memory = next;
   loadedRev = STORE_REV;
-  await ensureDir();
-  await fs.writeFile(storePath, JSON.stringify(next, null, 2), "utf8");
+  try {
+    await ensureDir();
+    await fs.writeFile(storePath, JSON.stringify(next, null, 2), "utf8");
+  } catch (error) {
+    console.error("Could not persist store.json", error);
+  }
 }
 
 export async function updateStore(patch: Partial<AppData>) {
