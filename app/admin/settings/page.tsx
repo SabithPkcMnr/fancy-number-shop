@@ -84,7 +84,11 @@ export default function AdminSettingsPage() {
             type="button"
             className="h-11 px-4 rounded-xl border border-line text-sm font-semibold"
             onClick={async () => {
-              const res = await fetch("/api/admin/notify-test", { method: "POST" });
+              if (process.env.NEXT_PUBLIC_STATIC === "true") {
+                setNote("Push tests need a Node host, not GitHub Pages.");
+                return;
+              }
+              const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/api/admin/notify-test`, { method: "POST" });
               const body = await res.json();
               setNote(body.ok ? "Test notification sent. Check this browser." : body.error || "Notification failed.");
             }}

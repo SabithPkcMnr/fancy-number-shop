@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { loadAdminData, saveAdminData } from "@/lib/admin-client";
 import type { AppData } from "@/lib/types";
 
 type AdminCtx = {
@@ -20,18 +21,13 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
 
   const reload = useCallback(async () => {
     setLoading(true);
-    const res = await fetch("/api/admin/data");
-    if (res.status === 401) {
-      window.location.href = "/admin/login";
-      return;
-    }
-    if (!res.ok) {
+    try {
+      setData(await loadAdminData());
+      setError("");
+    } catch (err) {
+      if (err instanceof Error && err.message === "Unauthorized") return;
       setError("Could not load admin data.");
-      setLoading(false);
-      return;
     }
-    setData(await res.json());
-    setError("");
     setLoading(false);
   }, []);
 
@@ -40,18 +36,14 @@ export function AdminDataProvider({ children }: { children: React.ReactNode }) {
   }, [reload]);
 
   const save = useCallback(async (patch: Partial<AppData>) => {
-    const res = await fetch("/api/admin/data", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(patch),
-    });
-    if (!res.ok) {
+    try {
+      setData(await saveAdminData(patch));
+      setError("");
+      return true;
+    } catch {
       setError("Save failed.");
       return false;
     }
-    setData(await res.json());
-    setError("");
-    return true;
   }, []);
 
   const value = useMemo(() => ({ data, loading, error, reload, save }), [data, loading, error, reload, save]);

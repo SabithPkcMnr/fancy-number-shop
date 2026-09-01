@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { loginAdmin } from "@/lib/admin-client";
+import { isStaticHost } from "@/lib/paths";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -18,16 +20,8 @@ export default function AdminLoginPage() {
           setError("");
           const form = new FormData(e.currentTarget);
           try {
-            const res = await fetch("/api/admin/login", {
-              method: "POST",
-              credentials: "same-origin",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                username: form.get("username"),
-                password: form.get("password"),
-              }),
-            });
-            if (!res.ok) {
+            const ok = await loginAdmin(String(form.get("username") ?? ""), String(form.get("password") ?? ""));
+            if (!ok) {
               setError("Invalid username or password.");
               return;
             }
@@ -49,6 +43,9 @@ export default function AdminLoginPage() {
           {busy ? "Signing in…" : "Sign in"}
         </button>
         <p className="mt-4 text-xs text-muted">Default first login: admin / FancyShop@2026 — change it in Settings after you sign in.</p>
+        {isStaticHost() && (
+          <p className="mt-2 text-xs text-muted">On this static site, admin data is stored in this browser only.</p>
+        )}
       </form>
     </div>
   );

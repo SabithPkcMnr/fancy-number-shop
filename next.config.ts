@@ -9,7 +9,7 @@ function localDevOrigins() {
   const hosts = new Set(["127.0.0.1", "localhost"]);
   for (const addrs of Object.values(os.networkInterfaces())) {
     for (const addr of addrs ?? []) {
-      if ((addr.family === "IPv4" || addr.family === 4) && addr.address) {
+      if (addr.family === "IPv4" && addr.address) {
         hosts.add(addr.address);
       }
     }
@@ -24,6 +24,7 @@ const nextConfig: NextConfig = {
   },
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
+    NEXT_PUBLIC_STATIC: isGithubPages ? "true" : "",
   },
   ...(isGithubPages
     ? {

@@ -1,8 +1,11 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { publicFromStore } from "./app-data";
 import { catalog, getNumber as seedNumber, type VipNumber } from "./catalog";
+import { isStaticHost } from "./paths";
 import { defaultSettings, fallbackNav, publicSettings } from "./site";
+import { readStaticStore } from "./static-admin";
 import type { MenuItem, PublicPayload, PublicSettings, Slide } from "./types";
 
 export type CartLine = { id: string; qty: number };
@@ -91,6 +94,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
+    if (isStaticHost()) {
+      setPublicData(publicFromStore(readStaticStore()));
+      return;
+    }
     fetch(`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/api/public`)
       .then((res) => (res.ok ? res.json() : fallbackPublic))
       .then((data: PublicPayload) => {

@@ -14,6 +14,8 @@ import {
   ExternalLink,
   LogOut,
 } from "lucide-react";
+import { logoutAdmin } from "@/lib/admin-client";
+import { samePath } from "@/lib/paths";
 import { AdminPush } from "./push";
 
 const links = [
@@ -38,7 +40,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <p className="text-xs text-white/50 mt-1">Fancy Number Shop</p>
         <nav className="mt-8 space-y-1 flex-1">
           {links.map((item) => {
-            const active = path === item.href;
+            const active = samePath(path, item.href);
             return (
               <Link
                 key={item.href}
@@ -62,7 +64,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <button
           className="mt-3 flex items-center gap-2 text-sm text-white/70 hover:text-white"
           onClick={async () => {
-            await fetch("/api/admin/logout", { method: "POST" });
+            await logoutAdmin();
             router.push("/admin/login");
           }}
         >
@@ -85,7 +87,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               key={item.href}
               href={item.href}
               className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold ${
-                path === item.href ? "bg-azure text-white" : "bg-slate-100"
+                samePath(path, item.href) ? "bg-azure text-white" : "bg-slate-100"
               }`}
             >
               {item.label}
