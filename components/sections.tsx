@@ -38,6 +38,14 @@ const tiles = [
   { href: "/numbers?category=mirror", title: "Mirror", tone: "from-indigo-700 to-violet-500" },
   { href: "/numbers?category=penta", title: "Penta", tone: "from-amber-600 to-orange-500" },
   { href: "/numbers?category=lucky-786", title: "786 Special", tone: "from-emerald-700 to-lime-500" },
+  { href: "/numbers?category=septa", title: "Septa", tone: "from-rose-700 to-orange-500" },
+  { href: "/numbers?category=octa", title: "Octa", tone: "from-fuchsia-800 to-pink-500" },
+  { href: "/numbers?category=two-digit", title: "2 Digit Numbers", tone: "from-sky-800 to-cyan-500" },
+  { href: "/numbers?category=aaa-bbb", title: "AAA BBB", tone: "from-violet-800 to-indigo-500" },
+  { href: "/numbers?category=abc-abc-abc", title: "ABC ABC ABC", tone: "from-teal-800 to-emerald-500" },
+  { href: "/numbers?category=abcd-xy-abcd", title: "ABCD XY ABCD", tone: "from-slate-800 to-blue-500" },
+  { href: "/numbers?category=middle-penta", title: "MIDDLE PENTA", tone: "from-orange-800 to-amber-500" },
+  { href: "/numbers?category=aoo-boo", title: "AOO BOO", tone: "from-neutral-800 to-stone-500" },
 ];
 
 export function CategoryTiles() {
@@ -46,7 +54,9 @@ export function CategoryTiles() {
       {tiles.map((tile) => (
         <Link key={tile.href} href={tile.href} className={`relative h-44 overflow-hidden rounded-2xl bg-gradient-to-br ${tile.tone} group`}>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.22),transparent_50%)]" />
-          <h3 className="relative h-full grid place-items-center font-display text-3xl text-white">{tile.title}</h3>
+          <h3 className="relative h-full grid place-items-center font-display text-xl sm:text-2xl text-white text-center px-4 leading-tight">
+            {tile.title}
+          </h3>
         </Link>
       ))}
     </section>

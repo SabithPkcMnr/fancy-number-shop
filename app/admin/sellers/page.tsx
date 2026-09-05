@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useAdminData } from "@/components/admin/admin-data";
+import { downloadNumbersSheet, numbersSheetFilename } from "@/lib/excel-numbers";
+import { inr } from "@/lib/site";
 import { nextId } from "@/lib/ids";
 import { OWN_SELLER_ID, sellerStats } from "@/lib/sellers";
 import type { Seller } from "@/lib/types";
@@ -118,7 +120,17 @@ export default function AdminSellersPage() {
                 </p>
                 {seller.notes ? <p className="text-sm mt-2">{seller.notes}</p> : null}
               </div>
-              <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  className="h-10 px-3 rounded-xl border border-line text-sm font-semibold"
+                  onClick={() => {
+                    const list = numbers.filter((item) => (item.sellerId || OWN_SELLER_ID) === seller.id);
+                    downloadNumbersSheet(list, sellers, numbersSheetFilename(seller.isOwn ? "in-house" : seller.name));
+                  }}
+                >
+                  Download Excel
+                </button>
                 <button
                   className="h-10 px-3 rounded-xl border border-line text-sm font-semibold"
                   onClick={() => {
@@ -147,6 +159,9 @@ export default function AdminSellersPage() {
               <Stat label="Live" value={stats.live} />
               <Stat label="Sold" value={stats.sold} />
               <Stat label="Private" value={stats.private} />
+              {stats.dealerCost > 0 ? <Stat label="Dealer cost" value={inr(stats.dealerCost)} /> : null}
+              {stats.sellingValue > 0 ? <Stat label="Selling value" value={inr(stats.sellingValue)} /> : null}
+              {stats.dealerCost > 0 ? <Stat label="Margin" value={inr(stats.margin)} /> : null}
             </dl>
             <Link href={`/admin/numbers?seller=${seller.id}`} className="inline-block mt-4 text-sm font-semibold text-azure">
               View this seller’s numbers
@@ -158,7 +173,7 @@ export default function AdminSellersPage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="rounded-xl bg-slate-50 px-3 py-2">
       <dt className="text-muted text-xs">{label}</dt>

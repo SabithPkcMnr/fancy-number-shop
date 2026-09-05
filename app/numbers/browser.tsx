@@ -56,7 +56,7 @@ export default function NumbersBrowser() {
               query.category === cat.slug ? "bg-azure text-white" : "bg-sky/80 text-ink"
             }`}
           >
-            {cat.name.replace(" Number", "")}
+            {cat.name.replace(/ Number$/, "")}
           </button>
         ))}
           <span className="w-2 shrink-0 sm:hidden" aria-hidden />

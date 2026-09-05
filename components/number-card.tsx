@@ -39,7 +39,9 @@ export function NumberCard({ item }: { item: VipNumber }) {
       )}
 
       <div className="mt-4 mb-1 text-sm">
-        <span className="text-muted line-through mr-2">{inr(item.originalPrice)}</span>
+        {item.originalPrice > item.price ? (
+          <span className="text-muted line-through mr-2">{inr(item.originalPrice)}</span>
+        ) : null}
         <span className="text-azure font-extrabold">{inr(item.price)}</span>
       </div>
 

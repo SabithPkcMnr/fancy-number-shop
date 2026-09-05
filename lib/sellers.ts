@@ -50,10 +50,14 @@ export function matchSeller(sellers: Seller[], value: string) {
 
 export function sellerStats(numbers: VipNumber[], sellerId: string) {
   const list = numbers.filter((item) => (item.sellerId || OWN_SELLER_ID) === sellerId);
+  const withDealer = list.filter((item) => (item.dealerPrice ?? 0) > 0);
   return {
     total: list.length,
     live: list.filter((item) => item.status === "live").length,
     sold: list.filter((item) => item.status === "sold").length,
     private: list.filter((item) => item.visibility === "private").length,
+    dealerCost: withDealer.reduce((sum, item) => sum + (item.dealerPrice ?? 0), 0),
+    sellingValue: list.filter((item) => item.status === "live").reduce((sum, item) => sum + item.price, 0),
+    margin: withDealer.reduce((sum, item) => sum + (item.price - (item.dealerPrice ?? 0)), 0),
   };
 }

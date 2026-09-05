@@ -9,7 +9,7 @@ const storePath = path.join(dataDir, "store.json");
 let memory: AppData | null = null;
 let writeQueue = Promise.resolve();
 let loadedRev = 0;
-const STORE_REV = 4;
+const STORE_REV = 5;
 
 function withLock<T>(fn: () => Promise<T>) {
   const run = writeQueue.then(fn, fn);

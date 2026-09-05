@@ -9,11 +9,14 @@ import { useAdminData } from "@/components/admin/admin-data";
 import { BulkNumberUpload } from "@/components/admin/bulk-upload";
 import { HighlightEditor } from "@/components/admin/highlight-editor";
 import { PatternHighlight } from "@/components/pattern-highlight";
+import { discountFrom, marginFrom } from "@/lib/pricing";
 import { OWN_SELLER_ID, sellerById } from "@/lib/sellers";
 
 const emptyForm = {
   digits: "",
   pattern: "",
+  dealerPrice: "",
+  sellingPrice: "4500",
   originalPrice: "5000",
   discount: "10",
   category: "unique" as CategorySlug,
@@ -70,6 +73,8 @@ function AdminNumbersInner() {
     setForm({
       digits: item.digits,
       pattern: item.pattern,
+      dealerPrice: item.dealerPrice ? String(item.dealerPrice) : "",
+      sellingPrice: String(item.price),
       originalPrice: String(item.originalPrice),
       discount: String(item.discount),
       category: item.category,
@@ -99,8 +104,23 @@ function AdminNumbersInner() {
       setNote("Enter a valid 10-digit Indian mobile number.");
       return;
     }
-    const originalPrice = Number(form.originalPrice) || 0;
-    const discount = Number(form.discount) || 0;
+    const sellingPrice = Number(form.sellingPrice) || 0;
+    const dealerPrice = Number(form.dealerPrice) || 0;
+    const originalPrice = Number(form.originalPrice) || sellingPrice;
+    const seller = sellerById(sellers, form.sellerId);
+    if (sellingPrice <= 0) {
+      setNote("Enter your selling price.");
+      return;
+    }
+    if (!seller.isOwn && dealerPrice <= 0) {
+      setNote("Dealer numbers need a dealer price and your selling price.");
+      return;
+    }
+    if (dealerPrice > 0 && sellingPrice < dealerPrice) {
+      setNote("Selling price should be at least the dealer price.");
+      return;
+    }
+    const discount = discountFrom(originalPrice, sellingPrice);
     const existing = numbers.find((item) => item.id === (editing === "new" ? digits : editing));
     const item: VipNumber = {
       id: digits,
@@ -108,7 +128,8 @@ function AdminNumbersInner() {
       pattern: form.pattern.trim() || formatPattern(digits),
       originalPrice,
       discount,
-      price: Math.round(originalPrice * (1 - discount / 100)),
+      price: sellingPrice,
+      dealerPrice: dealerPrice > 0 ? dealerPrice : undefined,
       category: form.category,
       categories: Array.from(new Set([form.category, ...(existing?.categories ?? [])])),
       checkout: form.checkout,
@@ -128,6 +149,10 @@ function AdminNumbersInner() {
         : numbers.map((n) => (n.id === editing ? { ...n, ...item } : n));
     await persist(next);
   }
+
+  const sellingPreview = Number(form.sellingPrice) || 0;
+  const dealerPreview = Number(form.dealerPrice) || 0;
+  const marginPreview = marginFrom(sellingPreview, dealerPreview || undefined);
 
   if (!data) return <p className="text-muted">Loading numbers…</p>;
 
@@ -177,6 +202,8 @@ function AdminNumbersInner() {
 
       <BulkNumberUpload
         numbers={numbers}
+        exportNumbers={filtered}
+        exportLabel={sellerFilter === "all" ? "all-filtered" : sellerById(sellers, sellerFilter).isOwn ? "in-house" : sellerById(sellers, sellerFilter).name}
         sellers={sellers}
         onApply={async (nextNumbers, nextSellers) => {
           const ok = await save({ numbers: nextNumbers, sellers: nextSellers });
@@ -189,14 +216,15 @@ function AdminNumbersInner() {
 
       {editing && (
         <div className="card-surface p-4 sm:p-5 mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Field
-            label="Digits"
-            value={form.digits}
-            onChange={(v) => setForm({ ...form, digits: v, highlights: v.replace(/\D/g, "").length === 10 ? form.highlights : [] })}
-          />
+          <Field label="Digits" value={form.digits} onChange={(v) => setForm({ ...form, digits: v, highlights: v.replace(/\D/g, "").length === 10 ? form.highlights : [] })} />
           <Field label="Display pattern" value={form.pattern} onChange={(v) => setForm({ ...form, pattern: v })} />
-          <Field label="Original price" value={form.originalPrice} onChange={(v) => setForm({ ...form, originalPrice: v })} />
-          <Field label="Discount %" value={form.discount} onChange={(v) => setForm({ ...form, discount: v })} />
+          <Field label="Dealer price" value={form.dealerPrice} onChange={(v) => setForm({ ...form, dealerPrice: v })} />
+          <Field label="Selling price" value={form.sellingPrice} onChange={(v) => setForm({ ...form, sellingPrice: v })} />
+          <Field label="Original / MRP (optional)" value={form.originalPrice} onChange={(v) => setForm({ ...form, originalPrice: v })} />
+          <p className="text-xs text-muted sm:col-span-2 -mt-1">
+            Dealer price is what the partner charges you. Selling price is what shoppers pay. MRP is only for the crossed-out figure.
+            {marginPreview !== undefined && sellingPreview ? ` Margin ${inr(marginPreview)}.` : ""}
+          </p>
           <label className="text-sm">
             Category
             <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as CategorySlug })} className="mt-1 w-full h-11 rounded-xl border border-line px-3 bg-white">
@@ -279,9 +307,15 @@ function AdminNumbersInner() {
                   </p>
                   <p className="text-xs text-muted mt-1">
                     {seller.name} · {item.visibility ?? "public"} · {item.category} · {item.status}
+                    {item.dealerPrice ? ` · dealer ${inr(item.dealerPrice)}` : ""}
                   </p>
                 </div>
-                <p className="text-sm font-semibold text-azure shrink-0">{inr(item.price)}</p>
+                <div className="text-right shrink-0">
+                  <p className="text-sm font-semibold text-azure">{inr(item.price)}</p>
+                  {item.dealerPrice ? (
+                    <p className="text-[11px] text-muted mt-0.5">margin {inr(item.price - item.dealerPrice)}</p>
+                  ) : null}
+                </div>
               </div>
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <select

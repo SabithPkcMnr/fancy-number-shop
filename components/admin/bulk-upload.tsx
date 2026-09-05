@@ -2,16 +2,21 @@
 
 import { useState } from "react";
 import { PatternHighlight } from "@/components/pattern-highlight";
-import { applyImport, applyNewSellers, downloadNumberTemplate, parseNumberSheet, workbookFromFile, type ImportRow } from "@/lib/excel-numbers";
+import { applyImport, applyNewSellers, downloadNumberTemplate, downloadNumbersSheet, numbersSheetFilename, parseNumberSheet, workbookFromFile, type ImportRow } from "@/lib/excel-numbers";
 import { inr } from "@/lib/site";
+import { sellerById } from "@/lib/sellers";
 import type { Seller, VipNumber } from "@/lib/types";
 
 export function BulkNumberUpload({
   numbers,
+  exportNumbers,
+  exportLabel,
   sellers,
   onApply,
 }: {
   numbers: VipNumber[];
+  exportNumbers: VipNumber[];
+  exportLabel: string;
   sellers: Seller[];
   onApply: (nextNumbers: VipNumber[], nextSellers: Seller[]) => Promise<boolean>;
 }) {
@@ -40,8 +45,8 @@ export function BulkNumberUpload({
     <section className="card-surface p-4 sm:p-5 mt-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-semibold">Bulk upload</h2>
-          <p className="text-xs text-muted mt-1">Excel preview first. Nothing goes live until you confirm.</p>
+          <h2 className="font-semibold">Bulk Excel</h2>
+          <p className="text-xs text-muted mt-1">Upload a sheet to add or update numbers. Download the current filter, in-house stock, or the full catalogue.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <button
@@ -50,6 +55,33 @@ export function BulkNumberUpload({
             onClick={() => downloadNumberTemplate(numbers[0], sellers)}
           >
             Download template
+          </button>
+          <button
+            type="button"
+            className="h-10 px-4 rounded-xl border border-line text-sm font-semibold disabled:opacity-40"
+            disabled={!exportNumbers.length}
+            onClick={() => downloadNumbersSheet(exportNumbers, sellers, numbersSheetFilename(exportLabel))}
+          >
+            Download shown ({exportNumbers.length})
+          </button>
+          <button
+            type="button"
+            className="h-10 px-4 rounded-xl border border-line text-sm font-semibold disabled:opacity-40"
+            onClick={() => {
+              const own = numbers.filter((item) => sellerById(sellers, item.sellerId).isOwn);
+              if (!own.length) return;
+              downloadNumbersSheet(own, sellers, numbersSheetFilename("in-house"));
+            }}
+          >
+            Download in-house
+          </button>
+          <button
+            type="button"
+            className="h-10 px-4 rounded-xl border border-line text-sm font-semibold disabled:opacity-40"
+            disabled={!numbers.length}
+            onClick={() => downloadNumbersSheet(numbers, sellers, numbersSheetFilename("all"))}
+          >
+            Download all
           </button>
           <label className="h-10 px-4 rounded-xl bg-navy text-white text-sm font-semibold grid place-items-center cursor-pointer">
             Upload Excel
@@ -75,6 +107,7 @@ export function BulkNumberUpload({
                 </div>
                 <p className="text-xs text-muted mt-1">
                   {row.sellerName} · {row.number.visibility} · {row.number.status} · {row.action}
+                  {row.number.dealerPrice ? ` · dealer ${inr(row.number.dealerPrice)}` : ""}
                 </p>
                 {row.errors.map((item) => (
                   <p key={item} className="text-xs text-danger mt-1">

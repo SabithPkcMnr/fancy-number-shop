@@ -147,13 +147,14 @@ function mergeNumbers(raw: VipNumber[] | undefined, seedNumbers: VipNumber[]) {
   const extra = seedNumbers.filter((item) => !have.has(item.id));
   const seedMap = new Map(seedNumbers.map((item) => [item.id, item]));
   return [...extra, ...list].map((item) => {
+    const seeded = seedMap.get(item.id);
     const next: VipNumber = {
       ...item,
       sellerId: item.sellerId || OWN_SELLER_ID,
       visibility: item.visibility === "private" ? "private" : "public",
+      categories: Array.from(new Set([item.category, ...(item.categories ?? []), ...(seeded?.categories ?? [])])),
     };
     if (next.highlights?.some((range) => range.color)) return next;
-    const seeded = seedMap.get(item.id);
     if (seeded && "highlights" in seeded) return { ...next, highlights: seeded.highlights ?? [] };
     return { ...next, highlights: autoHighlights(item.digits) };
   });
@@ -186,7 +187,7 @@ export function publicFromStore(store: AppData): PublicPayload {
     settings: publicSettings(store.settings),
     numbers: store.numbers
       .filter((item) => item.status === "live" && item.visibility !== "private")
-      .map(({ sellerId: _seller, ...item }) => item),
+      .map(({ sellerId: _seller, dealerPrice: _dealer, ...item }) => item),
     slides: store.settings.maintenanceMode ? [] : store.slides.filter((slide) => slide.active),
     menus: store.menus.filter((item) => item.visible).sort((a, b) => a.order - b.order),
   };

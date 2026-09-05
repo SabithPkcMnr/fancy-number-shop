@@ -1,12 +1,15 @@
 import { categories } from "./catalog";
 import { addHighlights, findAllHighlights, HIGHLIGHT_COLORS, type HighlightColor } from "./highlights";
 import { matchSeller, OWN_SELLER_ID } from "./sellers";
+import { discountFrom, sellingFrom } from "./pricing";
 import { formatPattern } from "./site";
 import type { CategorySlug, CheckoutMode, DigitHighlight, NumberStatus, NumberVisibility, Seller, VipNumber } from "./types";
 
 export const NUMBER_SHEET_HEADERS = [
   "Digits",
   "Pattern",
+  "Dealer Price",
+  "Selling Price",
   "Original Price",
   "Discount %",
   "Category",
@@ -100,6 +103,20 @@ function normalizeVisibility(value: string): NumberVisibility {
 
 function normalizeCategory(value: string): CategorySlug {
   const v = value.trim().toLowerCase().replace(/\s+/g, "-");
+  const aliases: Record<string, CategorySlug> = {
+    "2-digit": "two-digit",
+    "2-digit-number": "two-digit",
+    "2-digit-numbers": "two-digit",
+    septa: "septa",
+    octa: "octa",
+    "aaa-bbb": "aaa-bbb",
+    "abc-abc-abc": "abc-abc-abc",
+    "abcd-xy-abcd": "abcd-xy-abcd",
+    "middle-penta": "middle-penta",
+    "aoo-boo": "aoo-boo",
+    "a00-b00": "aoo-boo",
+  };
+  if (aliases[v]) return aliases[v];
   if (categorySlugs.has(v as CategorySlug)) return v as CategorySlug;
   const named = categories.find((item) => item.name.toLowerCase() === value.trim().toLowerCase());
   return named?.slug ?? "unique";
@@ -110,6 +127,8 @@ export function numberToSheetRow(item: VipNumber, sellers: Seller[]) {
   return [
     item.digits,
     item.pattern,
+    item.dealerPrice ?? "",
+    item.price,
     item.originalPrice,
     item.discount,
     item.category,
@@ -146,8 +165,11 @@ export function parseNumberSheet(
     const warnings: string[] = [];
     if (!/^[6-9]\d{9}$/.test(digits)) errors.push("Digits must be a valid 10-digit Indian mobile number.");
 
-    const originalPrice = Number(cell(row, "originalprice", "price", "mrp")) || 0;
+    const dealerPrice = Number(cell(row, "dealerprice", "cost", "dealercost")) || undefined;
+    const sellingPrice = Number(cell(row, "sellingprice", "selling", "ourprice", "saleprice"));
+    const originalPrice = Number(cell(row, "originalprice", "mrp", "price")) || sellingPrice || 0;
     const discount = Number(cell(row, "discount", "discountpercent")) || 0;
+    const price = sellingFrom(originalPrice, discount, sellingPrice);
     const sellerValue = cell(row, "seller", "sellername", "owner");
     let seller = matchSeller(sellers, sellerValue) || createdSellers.get(sellerValue.toLowerCase());
     let newSeller: Seller | undefined;
@@ -169,15 +191,22 @@ export function parseNumberSheet(
     }
     if (!seller) seller = matchSeller(sellers, OWN_SELLER_ID)!;
 
+    if (!seller.isOwn && !(dealerPrice && dealerPrice > 0)) {
+      errors.push("Dealer numbers need a dealer price and selling price.");
+    }
+    if (!price) errors.push("Selling price is required.");
+    if (dealerPrice && price && dealerPrice > price) warnings.push("Dealer price is higher than selling price.");
+
     const current = have.get(digits);
     const category = normalizeCategory(cell(row, "category"));
     const item: VipNumber = {
       id: digits,
       digits,
       pattern: cell(row, "pattern", "display") || formatPattern(digits),
-      originalPrice,
-      discount,
-      price: Math.round(originalPrice * (1 - discount / 100)),
+      originalPrice: originalPrice || price,
+      discount: discount || discountFrom(originalPrice || price, price),
+      price,
+      dealerPrice,
       category,
       categories: Array.from(new Set([category, ...(current?.categories ?? [])])),
       checkout: normalizeCheckout(cell(row, "checkout", "buybutton", "payment")),
@@ -234,6 +263,55 @@ export async function workbookFromFile(file: File) {
   return XLSX.utils.sheet_to_json<Record<string, string>>(sheet, { defval: "" });
 }
 
+function notesSheet(XLSX: typeof import("xlsx")) {
+  return XLSX.utils.aoa_to_sheet([
+    ["How to fill this sheet"],
+    ["Digits", "10-digit Indian mobile starting with 6–9. Required."],
+    ["Pattern", "Optional display spacing, e.g. 98 8888 8888."],
+    ["Category", categories.map((item) => item.slug).join(", ")],
+    ["Checkout", "whatsapp or razorpay"],
+    ["Status", "live, sold, or hidden"],
+    ["Visibility", "public = shoppers can see it. private = admin only."],
+    ["Seller", "Use Fancy Number Shop for in-house stock, or another seller name."],
+    ["Dealer Price", "What the dealer charges you. Required for partner numbers. Shoppers never see this."],
+    ["Selling Price", "Your shop price. Customers pay this amount."],
+    ["Original Price", "Optional MRP / crossed-out price. Leave blank to use selling price."],
+    ["Highlights", "Digit groups and colours, e.g. 88888888:gold; 98:teal. Colours: gold, teal, violet."],
+    ["Featured / Offer / Prebook", "yes or no"],
+  ]);
+}
+
+function writeNumbersWorkbook(
+  XLSX: typeof import("xlsx"),
+  rows: unknown[][],
+  filename: string,
+) {
+  const numbers = XLSX.utils.aoa_to_sheet(rows);
+  numbers["!cols"] = NUMBER_SHEET_HEADERS.map(() => ({ wch: 18 }));
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, numbers, "Numbers");
+  XLSX.utils.book_append_sheet(workbook, notesSheet(XLSX), "Notes");
+  XLSX.writeFile(workbook, filename);
+}
+
+export function numbersSheetFilename(label = "all") {
+  const slug = label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40);
+  return `fancy-numbers-${slug || "all"}.xlsx`;
+}
+
+export async function downloadNumbersSheet(items: VipNumber[], sellers: Seller[], filename = "fancy-numbers.xlsx") {
+  const XLSX = await import("xlsx");
+  writeNumbersWorkbook(
+    XLSX,
+    [[...NUMBER_SHEET_HEADERS], ...items.map((item) => numberToSheetRow(item, sellers))],
+    filename,
+  );
+}
+
 export async function downloadNumberTemplate(sample?: VipNumber, sellers: Seller[] = []) {
   const XLSX = await import("xlsx");
   const example =
@@ -245,6 +323,7 @@ export async function downloadNumberTemplate(sample?: VipNumber, sellers: Seller
       originalPrice: 1250000,
       discount: 10,
       price: 1125000,
+      dealerPrice: 980000,
       category: "vvip",
       categories: ["vvip"],
       checkout: "whatsapp",
@@ -257,25 +336,5 @@ export async function downloadNumberTemplate(sample?: VipNumber, sellers: Seller
       familyGroup: "",
       highlights: [{ start: 2, end: 10, color: "gold" }],
     } as VipNumber);
-  const numbers = XLSX.utils.aoa_to_sheet([
-    [...NUMBER_SHEET_HEADERS],
-    numberToSheetRow(example, sellers),
-  ]);
-  numbers["!cols"] = NUMBER_SHEET_HEADERS.map(() => ({ wch: 18 }));
-  const notes = XLSX.utils.aoa_to_sheet([
-    ["How to fill this sheet"],
-    ["Digits", "10-digit Indian mobile starting with 6–9. Required."],
-    ["Pattern", "Optional display spacing, e.g. 98 8888 8888."],
-    ["Category", categories.map((item) => item.slug).join(", ")],
-    ["Checkout", "whatsapp or razorpay"],
-    ["Status", "live, sold, or hidden"],
-    ["Visibility", "public = shoppers can see it. private = admin only."],
-    ["Seller", "Use Fancy Number Shop for in-house stock, or another seller name."],
-    ["Highlights", "Digit groups and colours, e.g. 88888888:gold; 98:teal. Colours: gold, teal, violet."],
-    ["Featured / Offer / Prebook", "yes or no"],
-  ]);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, numbers, "Numbers");
-  XLSX.utils.book_append_sheet(workbook, notes, "Notes");
-  XLSX.writeFile(workbook, "fancy-number-bulk-upload.xlsx");
+  writeNumbersWorkbook(XLSX, [[...NUMBER_SHEET_HEADERS], numberToSheetRow(example, sellers)], "fancy-number-bulk-upload.xlsx");
 }

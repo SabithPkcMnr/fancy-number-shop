@@ -10,14 +10,21 @@ export type CategorySlug =
   | "semi-mirror"
   | "penta"
   | "hexa"
+  | "septa"
+  | "octa"
   | "tetra"
   | "two-digit"
   | "three-digit"
   | "lucky-786"
   | "without-248"
   | "doubling"
+  | "aaa-bbb"
   | "abc-abc"
+  | "abc-abc-abc"
   | "abcd-abcd"
+  | "abcd-xy-abcd"
+  | "middle-penta"
+  | "aoo-boo"
   | "xy-xy-xy"
   | "sequential"
   | "ending-0000"
@@ -38,6 +45,7 @@ export type VipNumber = {
   price: number;
   originalPrice: number;
   discount: number;
+  dealerPrice?: number;
   category: CategorySlug;
   categories: CategorySlug[];
   featured?: boolean;

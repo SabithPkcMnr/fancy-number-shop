@@ -16,7 +16,9 @@ export function BuyBox({ item, meaning }: { item: VipNumber; meaning: string }) 
   return (
     <div className="card-surface min-w-0 p-5 sm:p-6">
       <div className="flex flex-col gap-1.5 sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-3">
-        <span className="text-sm sm:text-lg text-muted line-through">{inr(item.originalPrice)}</span>
+        {item.originalPrice > item.price ? (
+          <span className="text-sm sm:text-lg text-muted line-through">{inr(item.originalPrice)}</span>
+        ) : null}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <span className="text-[1.75rem] sm:text-3xl leading-none text-azure font-extrabold">
             {inr(item.price)}

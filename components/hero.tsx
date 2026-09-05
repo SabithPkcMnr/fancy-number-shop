@@ -44,10 +44,10 @@ export function Hero() {
           <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}${slide.image}`} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
         ) : null}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_42%)]" />
-        <div className="absolute -right-10 top-10 hidden lg:block text-white/10 font-extrabold text-[140px] leading-none select-none pointer-events-none">
+        <div className="absolute -right-10 top-4 hidden lg:block text-white/10 font-extrabold text-[96px] leading-none select-none pointer-events-none">
           786
         </div>
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-7 pb-16 sm:pt-20 sm:pb-32 lg:pt-24 lg:pb-36">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 pt-7 pb-16 sm:pt-8 sm:pb-16 lg:pt-8 lg:pb-14">
           <div className="grid">
             {list.map((item, i) => {
               const visible = i === index;
@@ -61,19 +61,19 @@ export function Hero() {
                   <p className="text-[10px] sm:text-xs font-bold tracking-[0.18em] sm:tracking-[0.22em] uppercase text-amber-200">
                     {item.kicker}
                   </p>
-                  <Title className="font-display mt-2 text-[1.5rem] leading-[1.22] sm:mt-4 sm:text-6xl sm:leading-[1.12] lg:text-7xl max-w-2xl text-white text-balance">
+                  <Title className="font-display mt-2 text-[1.5rem] leading-[1.22] sm:mt-2 sm:text-4xl sm:leading-[1.15] lg:text-5xl max-w-2xl text-white text-balance">
                     {item.title}
                   </Title>
-                  <p className="mt-2 max-w-lg text-[13px] leading-snug text-white/75 line-clamp-2 sm:mt-5 sm:text-[15px] sm:leading-normal sm:text-lg sm:line-clamp-none sm:text-pretty">
+                  <p className="mt-2 max-w-lg text-[13px] leading-snug text-white/75 line-clamp-2 sm:mt-3 sm:text-[15px] sm:leading-normal sm:text-base sm:line-clamp-none sm:text-pretty">
                     {item.text}
                   </p>
                   <div className="mt-4 hidden sm:flex flex-wrap gap-3">
-                    <Link href={item.ctaHref || "/numbers"} className="h-12 px-7 inline-flex items-center rounded-xl bg-white text-navy text-sm font-bold">
+                    <Link href={item.ctaHref || "/numbers"} className="h-11 px-6 inline-flex items-center rounded-xl bg-white text-navy text-sm font-bold">
                       {item.ctaLabel || "Browse VIP numbers"}
                     </Link>
                     <Link
                       href="/numerology"
-                      className="h-12 px-7 inline-flex items-center rounded-xl border border-white/30 text-white text-sm font-bold"
+                      className="h-11 px-6 inline-flex items-center rounded-xl border border-white/30 text-white text-sm font-bold"
                     >
                       Numerology search
                     </Link>
@@ -84,7 +84,7 @@ export function Hero() {
           </div>
 
           {list.length > 1 ? (
-            <div className="mt-5 sm:mt-10 flex items-center justify-between gap-4">
+            <div className="mt-5 flex items-center justify-between gap-4">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 {list.map((item, i) => (
                   <button
